@@ -1,0 +1,35 @@
+# Shared settings every run inherits via `extends: base.yaml`.
+# The `bench` block is FROZEN once Phase 1 records baselines -- changing it
+# afterwards invalidates cross-run comparison (Hard Rule 6: ask first).
+
+seed: 1234
+
+target:
+  name: Qwen/Qwen2.5-1.5B-Instruct
+  # T4 is Turing (sm_75): no native bf16, so the bfloat16 the config ships with
+  # is not available. fp16 for target and baseline alike.
+  dtype: float16
+  attn_implementation: sdpa
+  device_map: cuda:0
+
+bench:
+  batch_size: 1
+  max_new_tokens: 256
+  repeats: 3
+  warmup_runs: 2
+  synchronize: true          # torch.cuda.synchronize() around every timed region
+  report: [median, p90]
+  bootstrap_samples: 10000   # 95% CIs over prompts
+  # A vanilla baseline is re-run in the same session as every method; Kaggle GPUs
+  # are shared, so a baseline from another session is not a baseline.
+  baseline_in_same_session: true
+
+eval_sets:
+  chat:  { source: HuggingFaceH4/mt_bench_prompts, split: train, n: 80 }
+  code:  { source: openai/openai_humaneval,        split: test,  n: 80 }
+  math:  { source: openai/gsm8k,                   split: test,  n: 80, config: main }
+
+logging:
+  results_dir: results
+  save_config_copy: true
+  save_env_record: true

@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "specheads"
+version = "0.1.0"
+description = "Speculative decoding from scratch: Medusa-style heads and an EAGLE-style drafter for Qwen2.5-1.5B-Instruct"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Shaunak Khedekar" }]
+
+dependencies = [
+    "torch>=2.2",
+    "transformers>=4.44",
+    "datasets>=2.20",
+    "accelerate>=0.33",
+    "numpy>=1.26",
+    "pandas>=2.0",
+    "scipy>=1.11",
+    "matplotlib>=3.8",
+    "wandb>=0.17",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = ["gpu: requires a CUDA device", "slow: long-running"]
