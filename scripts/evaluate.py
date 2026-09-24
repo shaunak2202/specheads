@@ -33,13 +33,50 @@ from specheads.model.target import encode_chat, load_target
 from specheads.utils.env import capture_env, git_commit
 from specheads.utils.seed import seed_everything
 
+# Names must not contain commas: --trees is comma-separated, and "tree(3,2)"
+# was being split into "tree(3" and "2)", so those configs silently never ran
+# and the tree sweep quietly covered chains only.
 TREES = {
     "chain-2": TreeSpec.chain(2),
     "chain-3": TreeSpec.chain(3),
     "chain-5": TreeSpec.chain(5),
-    "tree(3,2)": TreeSpec.from_widths((3, 2)),
-    "tree(4,2,2)": TreeSpec.from_widths((4, 2, 2)),
+    "tree-3x2": TreeSpec.from_widths((3, 2)),
+    "tree-4x2x2": TreeSpec.from_widths((4, 2, 2)),
 }
+
+
+def fp16_ulp(magnitude: float) -> float:
+    """Spacing between representable fp16 values near `magnitude`.
+
+    fp16 carries 10 explicit mantissa bits, so near a value with exponent e the
+    spacing is 2**(e-10). Two logits closer than this are the same number at
+    this precision, and which one argmax returns is decided by reduction order.
+    """
+    import math
+
+    if magnitude <= 0:
+        return 2.0**-24
+    exponent = math.floor(math.log2(magnitude))
+    return 2.0 ** (exponent - 10)
+
+
+def gap_magnitude(model, ids, tokens, index) -> float:
+    return abs(_top2(model, ids, tokens, index)[0])
+
+
+def top2_gap(model, ids, tokens, index) -> float:
+    top1, top2 = _top2(model, ids, tokens, index)
+    return float(top1 - top2)
+
+
+def _top2(model, ids, tokens, index):
+    prefix = torch.cat(
+        [ids, torch.tensor([tokens[:index]], dtype=torch.long, device=ids.device)], dim=1
+    )
+    with torch.no_grad():
+        logits = model(input_ids=prefix, use_cache=False, logits_to_keep=1).logits[0, -1].float()
+    top = torch.topk(logits, 2)
+    return float(top.values[0]), float(top.values[1])
 
 
 def load_heads(path: Path, hidden_size: int, device, dtype=torch.float32) -> MedusaHeads:
@@ -60,7 +97,7 @@ def main() -> int:
     parser.add_argument("--heads", type=Path, required=True)
     parser.add_argument("--label", required=True, help="name for this drafter, e.g. medusa_chat")
     parser.add_argument("--domains", default="chat,code,math")
-    parser.add_argument("--trees", default="chain-2,chain-3,chain-5,tree(3,2),tree(4,2,2)")
+    parser.add_argument("--trees", default=",".join(TREES))
     parser.add_argument("--n-prompts", type=int, default=24)
     parser.add_argument("--max-new-tokens", type=int, default=96)
     parser.add_argument("--device", default=None)
@@ -124,6 +161,8 @@ def main() -> int:
             depth_hits: dict[int, int] = {}
             depth_attempts: dict[int, int] = {}
             mismatches = 0
+            tie_attributable = 0
+            divergence_gaps: list[float] = []
 
             for prompt, expected in zip(prompts, baselines):
                 ids = encode_chat(target.tokenizer, prompt, target.device)
@@ -142,6 +181,18 @@ def main() -> int:
 
                 if result.tokens != expected:
                     mismatches += 1
+                    first = next(
+                        (i for i, (a, b) in enumerate(zip(result.tokens, expected)) if a != b),
+                        None,
+                    )
+                    if first is not None:
+                        gap = top2_gap(target.model, ids, expected, first)
+                        divergence_gaps.append(gap)
+                        # <= 1 fp16 ULP at this magnitude: the two candidates are
+                        # indistinguishable at this precision, so which one argmax
+                        # returns depends on reduction order, not on our logic.
+                        if gap <= fp16_ulp(gap_magnitude(target.model, ids, expected, first)):
+                            tie_attributable += 1
                 accepted.append(stats.mean_accepted_length)
                 per_forward.append(stats.mean_emitted_per_step)
                 tps.append(result.num_tokens / elapsed if elapsed else 0.0)
@@ -163,7 +214,10 @@ def main() -> int:
                 "median_tokens_per_second": median_tps,
                 "speedup_vs_vanilla": speedup(median_tps, vanilla_median),
                 "lossless": mismatches == 0,
+                "lossless_modulo_fp16_ties": mismatches == tie_attributable,
                 "n_mismatches": mismatches,
+                "n_tie_attributable": tie_attributable,
+                "divergence_gaps": divergence_gaps,
                 "acceptance_by_depth": {
                     str(d): depth_hits.get(d, 0) / a for d, a in sorted(depth_attempts.items()) if a
                 },
@@ -174,7 +228,7 @@ def main() -> int:
                 f"{tree_name:11} accepted={row['mean_accepted_length']:.3f} "
                 f"tok/fwd={row['mean_tokens_per_forward']:.3f} "
                 f"tok/s={median_tps:.1f} speedup={row['speedup_vs_vanilla']:.2f}x "
-                f"lossless={row['lossless']}",
+                f"lossless={row['lossless']} (ties={tie_attributable}/{mismatches})",
                 flush=True,
             )
 

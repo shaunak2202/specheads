@@ -1,0 +1,417 @@
+{
+  "generated_at": "2026-09-24T19:37:44.027843+00:00",
+  "commit": "e50f6b42166f2ff6b1400db7f1eb102d381c68a1",
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.4-arm64-arm-64bit",
+    "commit": "e50f6b42166f2ff6b1400db7f1eb102d381c68a1",
+    "dirty": true,
+    "libraries": {
+      "torch": "2.14.0",
+      "transformers": "5.17.0",
+      "datasets": "5.0.1",
+      "accelerate": "1.15.0",
+      "numpy": "2.4.6",
+      "scipy": "1.17.1"
+    },
+    "gpu": {
+      "available": false,
+      "reason": "no CUDA device"
+    }
+  },
+  "settings": {
+    "label": "medusa_chat",
+    "heads": "results/medusa_chat/heads.pt",
+    "device": "mps",
+    "dtype": "float16",
+    "n_prompts": 16,
+    "max_new_tokens": 96,
+    "seed": 1234
+  },
+  "hardware_note": "tokens/sec and speedup describe THIS device and do not transfer. mean_accepted_length, tokens_per_forward, acceptance_by_depth and lossless are properties of the drafter and target and do transfer.",
+  "rows": [
+    {
+      "drafter": "vanilla",
+      "domain": "chat",
+      "tree": null,
+      "median_tokens_per_second": 40.857562623494886,
+      "mean_tokens_per_forward": 1.0,
+      "mean_accepted_length": 0.0,
+      "lossless": true,
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "chat",
+      "tree": "chain-2",
+      "mean_accepted_length": 0.2139167652160623,
+      "accepted_ci_low": 0.17466343327478157,
+      "accepted_ci_high": 0.2534592082225252,
+      "mean_tokens_per_forward": 1.2139167652160623,
+      "median_tokens_per_second": 35.08131571897314,
+      "speedup_vs_vanilla": 0.8586247800009452,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 3,
+      "n_tie_attributable": 3,
+      "divergence_gaps": [
+        0.0,
+        0.0,
+        0.015625
+      ],
+      "acceptance_by_depth": {
+        "1": 0.19002579535683578,
+        "2": 0.018916595012897677
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "chat",
+      "tree": "chain-3",
+      "mean_accepted_length": 0.2149865850358821,
+      "accepted_ci_low": 0.17546403911010372,
+      "accepted_ci_high": 0.2546611687168015,
+      "mean_tokens_per_forward": 1.214986585035882,
+      "median_tokens_per_second": 32.43826544749983,
+      "speedup_vs_vanilla": 0.7939354030102228,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 3,
+      "n_tie_attributable": 3,
+      "divergence_gaps": [
+        0.0,
+        0.0,
+        0.015625
+      ],
+      "acceptance_by_depth": {
+        "1": 0.18932874354561102,
+        "2": 0.0189328743545611,
+        "3": 0.0017211703958691911
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "chat",
+      "tree": "chain-5",
+      "mean_accepted_length": 0.21237817484407073,
+      "accepted_ci_low": 0.17472586004368423,
+      "accepted_ci_high": 0.25025116367789907,
+      "mean_tokens_per_forward": 1.2123781748440705,
+      "median_tokens_per_second": 30.900954336656167,
+      "speedup_vs_vanilla": 0.7563092938609796,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 3,
+      "n_tie_attributable": 3,
+      "divergence_gaps": [
+        0.0,
+        0.015625,
+        0.015625
+      ],
+      "acceptance_by_depth": {
+        "1": 0.1854077253218884,
+        "2": 0.019742489270386267,
+        "3": 0.0017167381974248926,
+        "4": 0.0008583690987124463,
+        "5": 0.0
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "chat",
+      "tree": "tree-3x2",
+      "mean_accepted_length": 0.38078500484344024,
+      "accepted_ci_low": 0.3196066663471556,
+      "accepted_ci_high": 0.4460805104123727,
+      "mean_tokens_per_forward": 1.3807850048434402,
+      "median_tokens_per_second": 34.03201675099522,
+      "speedup_vs_vanilla": 0.8329429012837227,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 2,
+      "n_tie_attributable": 2,
+      "divergence_gaps": [
+        0.0,
+        0.015625
+      ],
+      "acceptance_by_depth": {
+        "1": 0.3460038986354776,
+        "2": 0.02631578947368421
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "chat",
+      "tree": "tree-4x2x2",
+      "mean_accepted_length": 0.439871864177251,
+      "accepted_ci_low": 0.370513636497553,
+      "accepted_ci_high": 0.5119392646493663,
+      "mean_tokens_per_forward": 1.4398718641772508,
+      "median_tokens_per_second": 37.16905684951696,
+      "speedup_vs_vanilla": 0.9097228141588438,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 1,
+      "n_tie_attributable": 1,
+      "divergence_gaps": [
+        0.015625
+      ],
+      "acceptance_by_depth": {
+        "1": 0.39898477157360407,
+        "2": 0.026395939086294416,
+        "3": 0.0040609137055837565
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "vanilla",
+      "domain": "code",
+      "tree": null,
+      "median_tokens_per_second": 37.45044339210222,
+      "mean_tokens_per_forward": 1.0,
+      "mean_accepted_length": 0.0,
+      "lossless": true,
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "code",
+      "tree": "chain-2",
+      "mean_accepted_length": 0.2890968250910329,
+      "accepted_ci_low": 0.2528953673872438,
+      "accepted_ci_high": 0.32515333399815805,
+      "mean_tokens_per_forward": 1.2890968250910326,
+      "median_tokens_per_second": 37.60223290850702,
+      "speedup_vs_vanilla": 1.0040530766168927,
+      "lossless": true,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 0,
+      "n_tie_attributable": 0,
+      "divergence_gaps": [],
+      "acceptance_by_depth": {
+        "1": 0.25675675675675674,
+        "2": 0.02787162162162162
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "code",
+      "tree": "chain-3",
+      "mean_accepted_length": 0.29491342085586436,
+      "accepted_ci_low": 0.2568243845664182,
+      "accepted_ci_high": 0.3326707212942408,
+      "mean_tokens_per_forward": 1.2949134208558644,
+      "median_tokens_per_second": 36.679591446348226,
+      "speedup_vs_vanilla": 0.9794167471481376,
+      "lossless": true,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 0,
+      "n_tie_attributable": 0,
+      "divergence_gaps": [],
+      "acceptance_by_depth": {
+        "1": 0.2527565733672604,
+        "2": 0.027989821882951654,
+        "3": 0.009329940627650551
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "code",
+      "tree": "chain-5",
+      "mean_accepted_length": 0.3013213481765742,
+      "accepted_ci_low": 0.2603147758929481,
+      "accepted_ci_high": 0.34344392238116117,
+      "mean_tokens_per_forward": 1.301321348176574,
+      "median_tokens_per_second": 36.230683025696315,
+      "speedup_vs_vanilla": 0.9674300153502818,
+      "lossless": true,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 0,
+      "n_tie_attributable": 0,
+      "divergence_gaps": [],
+      "acceptance_by_depth": {
+        "1": 0.25298126064735943,
+        "2": 0.028109028960817718,
+        "3": 0.009369676320272573,
+        "4": 0.005110732538330494,
+        "5": 0.0
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "code",
+      "tree": "tree-3x2",
+      "mean_accepted_length": 0.4635891112730386,
+      "accepted_ci_low": 0.4073076138719723,
+      "accepted_ci_high": 0.5222453307480159,
+      "mean_tokens_per_forward": 1.4635891112730384,
+      "median_tokens_per_second": 41.281415269177295,
+      "speedup_vs_vanilla": 1.102294433125002,
+      "lossless": true,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 0,
+      "n_tie_attributable": 0,
+      "divergence_gaps": [],
+      "acceptance_by_depth": {
+        "1": 0.4169847328244275,
+        "2": 0.03721374045801527
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "code",
+      "tree": "tree-4x2x2",
+      "mean_accepted_length": 0.5197818151113717,
+      "accepted_ci_low": 0.45456846229470155,
+      "accepted_ci_high": 0.5891799562607638,
+      "mean_tokens_per_forward": 1.5197818151113718,
+      "median_tokens_per_second": 40.34218507571532,
+      "speedup_vs_vanilla": 1.077215152123484,
+      "lossless": true,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 0,
+      "n_tie_attributable": 0,
+      "divergence_gaps": [],
+      "acceptance_by_depth": {
+        "1": 0.4579624134520277,
+        "2": 0.03956478733926805,
+        "3": 0.009891196834817012
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "vanilla",
+      "domain": "math",
+      "tree": null,
+      "median_tokens_per_second": 38.12648379548574,
+      "mean_tokens_per_forward": 1.0,
+      "mean_accepted_length": 0.0,
+      "lossless": true,
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "math",
+      "tree": "chain-2",
+      "mean_accepted_length": 0.2860864876527057,
+      "accepted_ci_low": 0.23589248720959013,
+      "accepted_ci_high": 0.34031318819618556,
+      "mean_tokens_per_forward": 1.2860864876527058,
+      "median_tokens_per_second": 37.72194674555713,
+      "speedup_vs_vanilla": 0.9893896050813764,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 1,
+      "n_tie_attributable": 1,
+      "divergence_gaps": [
+        0.0
+      ],
+      "acceptance_by_depth": {
+        "1": 0.22948073701842547,
+        "2": 0.048576214405360134
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "math",
+      "tree": "chain-3",
+      "mean_accepted_length": 0.28942914634458305,
+      "accepted_ci_low": 0.23857055733035984,
+      "accepted_ci_high": 0.3443948354780508,
+      "mean_tokens_per_forward": 1.289429146344583,
+      "median_tokens_per_second": 37.79321667838996,
+      "speedup_vs_vanilla": 0.9912589076169872,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 1,
+      "n_tie_attributable": 1,
+      "divergence_gaps": [
+        0.0
+      ],
+      "acceptance_by_depth": {
+        "1": 0.22753988245172124,
+        "2": 0.04869857262804366,
+        "3": 0.005037783375314861
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "math",
+      "tree": "chain-5",
+      "mean_accepted_length": 0.29695412190720216,
+      "accepted_ci_low": 0.24574694357839336,
+      "accepted_ci_high": 0.350600215667231,
+      "mean_tokens_per_forward": 1.296954121907202,
+      "median_tokens_per_second": 37.32566774057706,
+      "speedup_vs_vanilla": 0.9789958061906695,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 1,
+      "n_tie_attributable": 1,
+      "divergence_gaps": [
+        0.015625
+      ],
+      "acceptance_by_depth": {
+        "1": 0.23141891891891891,
+        "2": 0.048986486486486486,
+        "3": 0.0059121621621621625,
+        "4": 0.002533783783783784,
+        "5": 0.0
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "math",
+      "tree": "tree-3x2",
+      "mean_accepted_length": 0.47212965223509856,
+      "accepted_ci_low": 0.42767875686625156,
+      "accepted_ci_high": 0.5208671826043233,
+      "mean_tokens_per_forward": 1.4721296522350986,
+      "median_tokens_per_second": 40.97324256124879,
+      "speedup_vs_vanilla": 1.0746661764308858,
+      "lossless": true,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 0,
+      "n_tie_attributable": 0,
+      "divergence_gaps": [],
+      "acceptance_by_depth": {
+        "1": 0.3982725527831094,
+        "2": 0.06813819577735125
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "medusa_chat",
+      "domain": "math",
+      "tree": "tree-4x2x2",
+      "mean_accepted_length": 0.5388982897749608,
+      "accepted_ci_low": 0.49362701952009425,
+      "accepted_ci_high": 0.5885374047241398,
+      "mean_tokens_per_forward": 1.5388982897749606,
+      "median_tokens_per_second": 41.72959385755068,
+      "speedup_vs_vanilla": 1.094504126879163,
+      "lossless": true,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 0,
+      "n_tie_attributable": 0,
+      "divergence_gaps": [],
+      "acceptance_by_depth": {
+        "1": 0.45883534136546184,
+        "2": 0.06726907630522089,
+        "3": 0.007028112449799197
+      },
+      "n_prompts": 16
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "generated_at": "2026-09-24T19:24:04.502139+00:00",
+  "commit": "e50f6b42166f2ff6b1400db7f1eb102d381c68a1",
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.4-arm64-arm-64bit",
+    "commit": "e50f6b42166f2ff6b1400db7f1eb102d381c68a1",
+    "dirty": true,
+    "libraries": {
+      "torch": "2.14.0",
+      "transformers": "5.17.0",
+      "datasets": "5.0.1",
+      "accelerate": "1.15.0",
+      "numpy": "2.4.6",
+      "scipy": "1.17.1"
+    },
+    "gpu": {
+      "available": false,
+      "reason": "no CUDA device"
+    }
+  },
+  "domain": "chat",
+  "max_new_tokens": 96,
+  "fp16": {
+    "device": "mps",
+    "dtype": "float16",
+    "n_prompts": 8,
+    "n_divergent_prompts": 3,
+    "exact_tie_positions": 5,
+    "scored_positions": 1278,
+    "exact_tie_rate": 0.003912363067292645,
+    "divergences": [
+      {
+        "prompt_index": 0,
+        "first_diff": 74,
+        "vanilla_token": 2205,
+        "speculative_token": 305,
+        "top1_logit": 19.265625,
+        "top2_logit": 19.265625,
+        "gap": 0.0,
+        "exact_tie": true
+      },
+      {
+        "prompt_index": 3,
+        "first_diff": 63,
+        "vanilla_token": 56597,
+        "speculative_token": 63030,
+        "top1_logit": 23.71875,
+        "top2_logit": 23.71875,
+        "gap": 0.0,
+        "exact_tie": true
+      },
+      {
+        "prompt_index": 7,
+        "first_diff": 49,
+        "vanilla_token": 1012,
+        "speculative_token": 60174,
+        "top1_logit": 19.8125,
+        "top2_logit": 19.796875,
+        "gap": 0.015625,
+        "exact_tie": false
+      }
+    ]
+  },
+  "fp32": {
+    "device": "cpu",
+    "dtype": "float32",
+    "n_prompts": 8,
+    "n_divergent_prompts": 0,
+    "exact_tie_positions": 0,
+    "scored_positions": 1278,
+    "exact_tie_rate": 0.0,
+    "divergences": []
+  },
+  "conclusion": {
+    "fp16_divergences_on_exact_ties": 2,
+    "fp16_divergences_total": 3,
+    "fp32_divergences_total": 0
+  }
+}
