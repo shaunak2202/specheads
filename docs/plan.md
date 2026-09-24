@@ -222,3 +222,41 @@ is not a baseline.
    and 256 keeps the Phase 6 sweep affordable.
 5. **wandb** — listed in the stack. Use it, or keep runs to local JSON only? Offline
    JSON in `results/` is the source of truth for the README either way, per Rule 1.
+
+---
+
+## Addendum — transformers 5.x findings (from the decode-core work)
+
+The installed transformers is **5.17.0**, not 4.x. Four things were read out of the
+installed source before any cache or mask code was written, and all four would have
+been wrong from memory:
+
+**Tree attention has a clean injection point.** `Qwen2Model.forward` begins
+`if not isinstance(causal_mask_mapping := attention_mask, dict):` — passing
+`attention_mask={"full_attention": <4D mask>}` bypasses `create_causal_mask`
+entirely and uses ours verbatim. Qwen2.5-1.5B is all `full_attention` layers
+(`use_sliding_window: False`), so one key covers every layer.
+
+**An explicit mask disables SDPA's causal flag automatically.** In
+`sdpa_attention_forward`: `is_causal = q_length > 1 and attention_mask is None and
+is_causal`. So supplying a tree mask turns `is_causal` off with no extra plumbing —
+and conversely, under SDPA with no padding `create_causal_mask` returns `None`, not a
+tensor, because it leans on that flag.
+
+**`Cache.crop` is mid-deprecation and its sign is load-bearing.** A *negative*
+argument removes that many tokens; a *positive* one means "final absolute size",
+warns, and is removed in 5.18. The natural-looking `crop(current - length)` truncates
+to the wrong position *and* breaks on upgrade. `rollback_to` passes the negative form.
+
+**`crop` cannot express what tree verification needs** anyway — it only truncates
+from the end, whereas acceptance must keep the prefix and a scattered subset of
+candidate positions. `DynamicLayer` stores `.keys`/`.values` as
+``[batch, num_kv_heads, seq, head_dim]`` concatenated on ``dim=-2``, so
+`prune_to_indices` does an `index_select` per layer.
+
+One trap outside transformers' own API: **`layer_types` does not shrink when
+`num_hidden_layers` is overridden** on a pretrained config. `DynamicCache` reads it,
+so a 2-layer test model got 28 cache slots with 26 permanently uninitialised.
+`tiny_target` now rewrites `layer_types` explicitly.
+
+`pyproject.toml` is pinned to `transformers>=5.0,<6` accordingly.

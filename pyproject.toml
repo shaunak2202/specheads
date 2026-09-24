@@ -13,7 +13,10 @@ authors = [{ name = "Shaunak Khedekar" }]
 
 dependencies = [
     "torch>=2.2",
-    "transformers>=4.44",
+    # 5.x specifically: the decode core uses the mask-as-dict injection point in
+    # Qwen2Model.forward and the negative-argument form of Cache.crop, neither of
+    # which exists in 4.x.
+    "transformers>=5.0,<6",
     "datasets>=2.20",
     "accelerate>=0.33",
     "numpy>=1.26",

@@ -21,16 +21,31 @@ benchmarking are the point; large numbers are not.
 
 ## Status
 
-**Phase 0 complete — awaiting gate approval.** No benchmarks have been run, so every
-result below is `TBD`. See [`docs/plan.md`](docs/plan.md).
+**Phase 0 complete. Decode core written and tested on CPU; no benchmarks have been
+run**, so every result below is `TBD`. See [`docs/plan.md`](docs/plan.md).
+
+What is verified today, on CPU against a tiny randomly-initialised Qwen2 — 104 tests:
+
+- Our greedy decode loop is **token-identical to `model.generate`** (the Phase 1 gate).
+- Speculative greedy output is **token-identical to vanilla** across 7 tree shapes ×
+  3 prompts, under both a random drafter (everything rejected) and an oracle drafter
+  (everything accepted). The oracle case is the one that matters: with random drafts
+  the accepted path is almost always empty and the rejected-branch cache pruning never
+  runs.
+- With a perfect drafter and a depth-5 chain, the loop emits **6 tokens per target
+  forward** and needs 6 forwards where vanilla needs 30 — the arithmetic ceiling,
+  confirming the tree mask, position ids and cache pruning all line up.
+
+None of that is a speedup claim. Acceptance from a *trained* drafter, and every
+wall-clock number, require the T4.
 
 | Phase | | |
 |---|---|---|
 | 0 | Plan and environment check | ✅ awaiting gate |
-| 1 | Vanilla decoding + benchmark harness | ⬜ |
-| 2 | Self-distillation data | ⬜ |
-| 3 | Medusa heads | ⬜ |
-| 4 | Tree verification | ⬜ |
+| 1 | Vanilla decoding + benchmark harness | 🟡 decode loop done; harness needs GPU |
+| 2 | Self-distillation data | ⬜ blocked on GPU |
+| 3 | Medusa heads | ⬜ blocked on Phase 2 |
+| 4 | Tree verification | 🟡 implemented + tested on CPU; needs GPU confirmation |
 | 5 | EAGLE drafter | ⬜ |
 | 6 | Experiments | ⬜ |
 | 7 | Write-up | ⬜ |
