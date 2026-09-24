@@ -98,11 +98,17 @@ def chunked_cross_entropy(
     if features.shape[0] == 0:
         return features.new_zeros(()), 0
 
+    # The heads carry fp32 master weights while the frozen LM head is fp16, so
+    # the cast happens here, at the boundary. Logits come straight back to fp32
+    # before the softmax: an fp16 softmax over 151936 classes loses enough of
+    # the tail to distort the loss.
+    weight_dtype = next(lm_head.parameters()).dtype
+
     total = features.new_zeros(())
     count = 0
     for start in range(0, features.shape[0], chunk_size):
         stop = min(start + chunk_size, features.shape[0])
-        logits = lm_head(features[start:stop]).float()
+        logits = lm_head(features[start:stop].to(weight_dtype)).float()
         chunk_targets = targets[start:stop]
         total = total + F.cross_entropy(logits, chunk_targets, reduction="sum")
         count += int(chunk_targets.numel())
@@ -155,6 +161,7 @@ def evaluate(
     heads.eval()
     stats = HeadStats()
     stats.ensure(config.num_heads)
+    weight_dtype = next(lm_head.parameters()).dtype
 
     for example in examples:
         ids = example.input_ids.unsqueeze(0)
@@ -171,7 +178,7 @@ def evaluate(
                 continue
             head_features = features[head][start:stop]
             head_target_ids = example.input_ids[start + shift : stop + shift]
-            logits = lm_head(head_features).float()
+            logits = lm_head(head_features.to(weight_dtype)).float()
             stats.update(head, logits, head_target_ids)
 
     heads.train()

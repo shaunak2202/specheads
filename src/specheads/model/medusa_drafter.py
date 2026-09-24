@@ -35,8 +35,12 @@ class MedusaDrafter:
             )
 
         max_rank = max((path[-1] for path in spec.ordered), default=0)
-        features = self.heads(context.hidden.unsqueeze(0))  # [K, 1, hidden]
-        logits = self.lm_head(features.squeeze(1))          # [K, vocab]
+        # Heads hold fp32 master weights; the frozen LM head is the target's
+        # dtype. Cast at the boundary rather than forcing either side to match.
+        head_dtype = next(self.heads.parameters()).dtype
+        weight_dtype = next(self.lm_head.parameters()).dtype
+        features = self.heads(context.hidden.to(head_dtype).unsqueeze(0))  # [K, 1, hidden]
+        logits = self.lm_head(features.squeeze(1).to(weight_dtype))        # [K, vocab]
         ranked = torch.topk(logits.float(), k=max_rank + 1, dim=-1).indices
 
         tokens = torch.zeros(spec.size, dtype=torch.long)

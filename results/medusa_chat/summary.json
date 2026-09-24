@@ -1,0 +1,107 @@
+{
+  "generated_at": "2026-09-24T19:00:29.692764+00:00",
+  "commit": "2f81c948315c06bd3e2032cb59de8ae662a18c9f",
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.4-arm64-arm-64bit",
+    "commit": "2f81c948315c06bd3e2032cb59de8ae662a18c9f",
+    "dirty": true,
+    "libraries": {
+      "torch": "2.14.0",
+      "transformers": "5.17.0",
+      "datasets": "5.0.1",
+      "accelerate": "1.15.0",
+      "numpy": "2.4.6",
+      "scipy": "1.17.1"
+    },
+    "gpu": {
+      "available": false,
+      "reason": "no CUDA device"
+    }
+  },
+  "mixture": "chat",
+  "mixture_weights": {
+    "chat": 1.0
+  },
+  "budget_tokens": 105000,
+  "selected_records": 469,
+  "selected_tokens": 105042,
+  "tokens_by_domain": {
+    "chat": 105042
+  },
+  "n_train_examples": 432,
+  "n_val_examples": 37,
+  "config": {
+    "num_heads": 5,
+    "num_resblocks": 1,
+    "lr": 0.001,
+    "weight_decay": 0.0,
+    "epochs": 2,
+    "warmup_steps": 50,
+    "grad_clip": 1.0,
+    "head_loss_decay": 0.8,
+    "ce_chunk_size": 256,
+    "max_seq_len": 768,
+    "seed": 1234,
+    "log_every": 25
+  },
+  "num_parameters": 11804160,
+  "history": [
+    {
+      "epoch": 0,
+      "train_loss": 31.374555846055348,
+      "val": {
+        "top1_accuracy": [
+          0.2015639589169001,
+          0.07736490446606493,
+          0.04367789027548858,
+          0.03310866737613811,
+          0.025890736342042756
+        ],
+        "top5_accuracy": [
+          0.40779645191409897,
+          0.20489977728285078,
+          0.13503649635036497,
+          0.10831264041622325,
+          0.0828978622327791
+        ],
+        "tokens_scored": [
+          8568,
+          8531,
+          8494,
+          8457,
+          8420
+        ]
+      },
+      "seconds": 137.0535425832495
+    },
+    {
+      "epoch": 1,
+      "train_loss": 18.990363108063185,
+      "val": {
+        "top1_accuracy": [
+          0.22210550887021474,
+          0.10221544953698276,
+          0.06734165293148105,
+          0.049899491545465295,
+          0.038836104513064136
+        ],
+        "top5_accuracy": [
+          0.4307889822595705,
+          0.2432305708592193,
+          0.17117965622792558,
+          0.1382286862953766,
+          0.11187648456057007
+        ],
+        "tokens_scored": [
+          8568,
+          8531,
+          8494,
+          8457,
+          8420
+        ]
+      },
+      "seconds": 284.54031054116786
+    }
+  ]
+}
