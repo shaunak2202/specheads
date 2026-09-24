@@ -99,6 +99,25 @@ def load_target(
     )
 
 
+def encode_chat(tokenizer, prompt: str, device=None) -> torch.Tensor:
+    """Apply the chat template and return ``[1, seq]`` input ids.
+
+    In transformers 5.x `apply_chat_template(..., return_tensors="pt")` returns a
+    `BatchEncoding`, not a tensor -- passing it straight to a model fails with a
+    bare `AttributeError` on `.shape` that says nothing about the cause. Every
+    call site goes through here so the unwrapping happens once.
+    """
+    encoded = tokenizer.apply_chat_template(
+        [{"role": "user", "content": prompt}],
+        add_generation_prompt=True,
+        tokenize=True,
+        return_dict=True,
+        return_tensors="pt",
+    )
+    input_ids = encoded["input_ids"]
+    return input_ids.to(device) if device is not None else input_ids
+
+
 def tiny_target(vocab_size: int = 512, seed: int = 0) -> LoadedTarget:
     """A randomly initialised, CPU-sized Qwen2 for tests.
 
