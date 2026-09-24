@@ -22,7 +22,13 @@ train:
   amp_dtype: float16
   ce_chunk_size: 256
   loss:
-    # Weighting is set empirically from Phase 2 feature statistics rather than
-    # pinned from memory -- see docs/plan.md open question 3.
-    w_regression: TBD
-    w_cross_entropy: 1.0
+    # Open question 3, resolved: chosen empirically, not pinned from memory.
+    # Phase 5 sweeps w_cross_entropy over `sweep_values` -- same data slice, same
+    # step count, same seed for each -- and selects on mean accepted length on
+    # the held-out validation split (never the eval prompts). The sweep table is
+    # committed before the full drafter is trained.
+    w_regression: 1.0
+    w_cross_entropy: TBD        # filled in from results/eagle_loss_sweep/
+    sweep_values: [0.03, 0.1, 0.3, 1.0]
+    select_on: mean_accepted_length
+    select_split: validation

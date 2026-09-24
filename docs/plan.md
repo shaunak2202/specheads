@@ -209,6 +209,22 @@ is not a baseline.
 
 ---
 
+## 6. Open questions for the gate — RESOLVED 2026-09-24
+
+1. **Code dataset** → **Glaive**. `glaiveai/glaive-code-assistant`, Apache-2.0,
+   re-verified against the HF API. (`-v2` / `-v3` are also Apache-2.0 if more
+   volume is wanted.)
+2. **Draft depth** → **K = 5**, evaluating depth 1–5 at inference.
+3. **EAGLE loss weighting** → **empirical**. Sweep `w_cross_entropy` over
+   {0.03, 0.1, 0.3, 1.0} on one fixed slice for a fixed step count, select on mean
+   accepted length on the held-out validation split, commit the table, then train
+   the full drafter with the winner.
+4. **max_new_tokens** → **256** everywhere: generation, distillation and benchmarks.
+5. **wandb** → unresolved; `results/` JSON remains the source of truth regardless,
+   so this does not block any phase.
+
+### Original text
+
 ## 6. Open questions for the gate
 
 1. **Code dataset** — Glaive (Apache 2.0, cleaner provenance) or Magicoder (MIT,

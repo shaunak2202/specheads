@@ -1,0 +1,47 @@
+# Resolved dataset choices. Licenses were re-verified against the Hugging Face
+# dataset API on 2026-09-24, not recalled -- see docs/plan.md section 2.
+#
+# NOTE: nothing here has been downloaded or materialised yet. Phase 2 populates
+# data/manifest.json with pinned revisions and content hashes; until then these
+# are declared intentions, not a record of data on disk.
+
+extends: base.yaml
+
+training_prompts:
+  chat:
+    source: HuggingFaceH4/ultrachat_200k
+    license: mit
+    split: train_sft
+  code:
+    # Open question 1, resolved: Glaive over Magicoder on provenance grounds.
+    # Verified present and Apache-2.0; v2 and v3 are also Apache-2.0 if more
+    # volume is wanted later.
+    source: glaiveai/glaive-code-assistant
+    license: apache-2.0
+    split: train
+  math:
+    source: openai/gsm8k
+    config: main
+    license: mit
+    split: train          # test split is the eval set, so disjoint by construction
+
+distillation:
+  # Targets are the frozen target's own greedy responses, not dataset answers.
+  max_new_tokens: 256
+  greedy: true
+  # Chat-only and mixed sets must match on token count, not prompt count, or the
+  # domain-shift comparison confounds data volume with data mixture.
+  match_on: token_count
+  mixture:
+    chat: 0.3334
+    code: 0.3333
+    math: 0.3333
+  val_fraction: 0.05      # held out for hyperparameter choices; never the eval sets
+  checkpoint_every: 250   # prompts, so a Kaggle preemption loses minutes not hours
+
+decontamination:
+  method: normalised 13-gram overlap
+  # Code instruction sets are the known HumanEval contamination risk; a memorised
+  # eval problem would inflate acceptance for reasons unrelated to speculation.
+  applies_to: [chat, code, math]
+  drop_training_hits: true
