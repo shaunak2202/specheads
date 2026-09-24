@@ -1,0 +1,36 @@
+{
+  "generated_at": "2026-09-24T18:18:26.323831+00:00",
+  "commit": "0398b9617faa8e511db5a11fc85e844a494d2164",
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.4-arm64-arm-64bit",
+    "commit": "0398b9617faa8e511db5a11fc85e844a494d2164",
+    "dirty": true,
+    "libraries": {
+      "torch": "2.14.0",
+      "transformers": "5.17.0",
+      "datasets": "5.0.1",
+      "accelerate": "1.15.0",
+      "numpy": "2.4.6",
+      "scipy": "1.17.1"
+    },
+    "gpu": {
+      "available": false,
+      "reason": "no CUDA device"
+    }
+  },
+  "settings": {
+    "device": "mps",
+    "dtype": "float16",
+    "max_new_tokens": 256,
+    "batch_size": 8,
+    "seed": 1234
+  },
+  "n_records": 1000,
+  "response_tokens_by_domain": {
+    "chat": 112785,
+    "code": 62726,
+    "math": 59532
+  },
+  "total_response_tokens": 235043
+}

@@ -16,3 +16,5 @@ data/cache/
 results/**/*.pt
 wandb/
 *.ckpt
+# Distilled responses: regenerable from data/manifest.json + the seed, and large.
+data/distill/

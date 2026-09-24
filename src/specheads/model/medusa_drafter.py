@@ -1,0 +1,46 @@
+"""Turning trained Medusa heads into a `Drafter` for the speculative loop.
+
+A tree node at depth *d* with rank *r* takes the *r*-th ranked token from head
+``d - 1``. Because the heads are independent predictions from one hidden state,
+every node in the tree is available from a single small forward -- which is the
+property that makes Medusa cheap relative to an autoregressive drafter.
+
+Siblings are distinct by construction: they share a depth, so they read the same
+head, and they differ in rank, so they take different entries of the same top-k.
+That is exactly the invariant `accept_path` requires.
+"""
+
+from __future__ import annotations
+
+import torch
+from torch import nn
+
+from ..decode.speculative import DraftContext
+from ..decode.tree import TreeSpec
+from .medusa_heads import MedusaHeads
+
+
+class MedusaDrafter:
+    """Drafts a candidate tree from trained Medusa heads."""
+
+    def __init__(self, heads: MedusaHeads, lm_head: nn.Module) -> None:
+        self.heads = heads
+        self.lm_head = lm_head
+
+    @torch.no_grad()
+    def draft(self, spec: TreeSpec, context: DraftContext) -> torch.Tensor:
+        if spec.depth > self.heads.num_heads:
+            raise ValueError(
+                f"tree depth {spec.depth} exceeds {self.heads.num_heads} trained heads"
+            )
+
+        max_rank = max((path[-1] for path in spec.ordered), default=0)
+        features = self.heads(context.hidden.unsqueeze(0))  # [K, 1, hidden]
+        logits = self.lm_head(features.squeeze(1))          # [K, vocab]
+        ranked = torch.topk(logits.float(), k=max_rank + 1, dim=-1).indices
+
+        tokens = torch.zeros(spec.size, dtype=torch.long)
+        for node, path in enumerate(spec.ordered):
+            depth, rank = len(path), path[-1]
+            tokens[node] = ranked[depth - 1, rank]
+        return tokens

@@ -1,12 +1,76 @@
 {
-  "_comment": "Populated by Phase 2. Every dataset is pinned to a revision hash, never to 'main', and the materialised prompt list is hashed so a rerun can prove it used the same data.",
   "schema_version": 1,
-  "generated_at": null,
-  "datasets": {},
-  "eval_sets": {},
+  "generated_at": "2026-09-24T07:31:32.520551+00:00",
+  "commit": "0398b9617faa8e511db5a11fc85e844a494d2164",
+  "seed": 1234,
+  "datasets": {
+    "chat": {
+      "source": "HuggingFaceH4/ultrachat_200k",
+      "license": "mit",
+      "split": "train_sft",
+      "requested": 500,
+      "retrieved": 500,
+      "count": 500,
+      "sha256": "3101ad995dc3cc73aaeae72f697bca17b930b23a169dd672e9888e7c915bc657"
+    },
+    "code": {
+      "source": "glaiveai/glaive-code-assistant",
+      "license": "apache-2.0",
+      "split": "train",
+      "requested": 250,
+      "retrieved": 250,
+      "count": 250,
+      "sha256": "223b6ff8f8ae96c58aa05e4f5cc18b9d62f518dbb6501e3eb23c4e6ae50cf381"
+    },
+    "math": {
+      "source": "openai/gsm8k",
+      "license": "mit",
+      "split": "train",
+      "requested": 250,
+      "retrieved": 250,
+      "count": 250,
+      "sha256": "4a32874ae0ba9ad6ff6e7dd2da2e554052ac26cd666ec5d45f551e78d82bfa7b"
+    }
+  },
+  "eval_sets": {
+    "chat": {
+      "source": "HuggingFaceH4/mt_bench_prompts",
+      "license": "apache-2.0",
+      "split": "train",
+      "count": 80,
+      "sha256": "fc36e34704a5ad78b19b7fce5cd23725cb5a676dc1a3b8d7d1c07f9feb9e33b6"
+    },
+    "code": {
+      "source": "openai/openai_humaneval",
+      "license": "mit",
+      "split": "test",
+      "count": 80,
+      "sha256": "178330d3988866fe07c0c30ac29287a31be4c4807b1ba5104ee2dd86921e5d96"
+    },
+    "math": {
+      "source": "openai/gsm8k",
+      "license": "mit",
+      "split": "test",
+      "count": 80,
+      "sha256": "fa9d18ffe0513a6dc8022997faa28e5036ccb8cc8877280f1a21091f33fec852"
+    }
+  },
   "decontamination": {
     "method": "normalised 13-gram overlap, training prompts vs all eval prompts",
-    "training_prompts_dropped": null,
-    "per_domain": {}
+    "training_prompts_dropped": 0,
+    "per_domain": {
+      "chat": {
+        "checked": 500,
+        "dropped": 0
+      },
+      "code": {
+        "checked": 250,
+        "dropped": 0
+      },
+      "math": {
+        "checked": 250,
+        "dropped": 0
+      }
+    }
   }
 }
