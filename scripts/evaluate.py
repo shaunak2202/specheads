@@ -27,6 +27,7 @@ from specheads.bench.timing import synchronize
 from specheads.decode.speculative import speculative_generate
 from specheads.decode.tree import TreeSpec
 from specheads.decode.vanilla import generate
+from specheads.model.eagle_drafter import EagleDrafter, EagleTreeDrafter
 from specheads.model.medusa_drafter import MedusaDrafter
 from specheads.model.medusa_heads import MedusaHeads
 from specheads.model.target import encode_chat, load_target
@@ -79,6 +80,16 @@ def _top2(model, ids, tokens, index):
     return float(top.values[0]), float(top.values[1])
 
 
+def load_eagle(path: Path, target) -> EagleTreeDrafter:
+    state = torch.load(path, map_location=target.device)
+    config = state.get("config", {})
+    model = EagleDrafter(target.config, intermediate_size=config.get("intermediate_size"))
+    model = model.to(device=target.device, dtype=torch.float32)
+    model.load_state_dict(state["drafter"])
+    model.eval()
+    return EagleTreeDrafter(model, target)
+
+
 def load_heads(path: Path, hidden_size: int, device, dtype=torch.float32) -> MedusaHeads:
     state = torch.load(path, map_location=device)
     config = state.get("config", {})
@@ -94,7 +105,9 @@ def load_heads(path: Path, hidden_size: int, device, dtype=torch.float32) -> Med
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--heads", type=Path, required=True)
+    parser.add_argument("--heads", type=Path, required=True,
+                        help="medusa heads.pt or eagle drafter.pt")
+    parser.add_argument("--drafter-type", choices=("medusa", "eagle"), default="medusa")
     parser.add_argument("--label", required=True, help="name for this drafter, e.g. medusa_chat")
     parser.add_argument("--domains", default="chat,code,math")
     parser.add_argument("--trees", default=",".join(TREES))
@@ -113,8 +126,11 @@ def main() -> int:
 
     target = load_target(dtype=args.dtype, device=args.device)
     eos = target.tokenizer.eos_token_id
-    heads = load_heads(args.heads, target.hidden_size, target.device)
-    drafter = MedusaDrafter(heads, target.lm_head)
+    if args.drafter_type == "medusa":
+        drafter = MedusaDrafter(load_heads(args.heads, target.hidden_size, target.device),
+                                target.lm_head)
+    else:
+        drafter = load_eagle(args.heads, target)
 
     trees = {name: TREES[name] for name in args.trees.split(",") if name in TREES}
     rows: list[dict] = []
@@ -239,6 +255,7 @@ def main() -> int:
         "settings": {
             "label": args.label,
             "heads": str(args.heads),
+            "drafter_type": args.drafter_type,
             "device": str(target.device),
             "dtype": args.dtype,
             "n_prompts": args.n_prompts,

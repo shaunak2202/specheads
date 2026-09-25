@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-09-24T20:46:10.224899+00:00",
+  "commit": "831722edc8e05027786f744757eaa483c2395844",
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.4-arm64-arm-64bit",
+    "commit": "831722edc8e05027786f744757eaa483c2395844",
+    "dirty": true,
+    "libraries": {
+      "torch": "2.14.0",
+      "transformers": "5.17.0",
+      "datasets": "5.0.1",
+      "accelerate": "1.15.0",
+      "numpy": "2.4.6",
+      "scipy": "1.17.1"
+    },
+    "gpu": {
+      "available": false,
+      "reason": "no CUDA device"
+    }
+  },
+  "mixture": "mixed",
+  "config": {
+    "lr": 0.0003,
+    "weight_decay": 0.0,
+    "epochs": 1,
+    "warmup_steps": 50,
+    "grad_clip": 1.0,
+    "w_regression": 1.0,
+    "w_cross_entropy": 0.03,
+    "ce_chunk_size": 256,
+    "intermediate_size": null,
+    "seed": 1234,
+    "log_every": 25,
+    "max_steps": 400
+  },
+  "num_parameters": 51517952,
+  "n_train_examples": 233,
+  "n_val_examples": 25,
+  "history": [
+    {
+      "epoch": 0,
+      "train_loss": 1.918199324916149,
+      "val_regression": 1.5054186296463012,
+      "val_cross_entropy": 5.830183916091919,
+      "val_top1_accuracy": 0.23423728813559322,
+      "tokens_scored": 5900
+    }
+  ]
+}

@@ -122,12 +122,15 @@ def build_section(results: Path) -> str:
     evals = {
         "medusa_chat": load(results / "eval_medusa_chat" / "metrics.json"),
         "medusa_mixed": load(results / "eval_medusa_mixed" / "metrics.json"),
+        "eagle_mixed": load(results / "eval_eagle_mixed" / "metrics.json"),
     }
     trainings = {
         "medusa_chat": load(results / "medusa_chat" / "summary.json"),
         "medusa_mixed": load(results / "medusa_mixed" / "summary.json"),
     }
+    eagle_training = load(results / "eagle_mixed" / "summary.json")
     lossless = load(results / "losslessness_mps_fp16" / "losslessness.json")
+    sweep = load(results / "eagle_loss_sweep" / "sweep.json")
     ties = load(results / "fp16_tie_investigation" / "investigation.json")
     distill = load(results / "distill" / "summary.json")
 
@@ -161,6 +164,47 @@ def build_section(results: Path) -> str:
         ]
 
     out += ["### Per-head validation accuracy (top-1)", ""] + head_accuracy_table(trainings) + [""]
+
+    if sweep:
+        out += [
+            "### EAGLE loss-weight sweep",
+            "",
+            f"{sweep['settings']['max_steps']} steps per candidate on an identical slice, "
+            f"identical seed; selected on `{sweep['selection_metric']}` "
+            "over the held-out validation split.",
+            "",
+            "| w_cross_entropy | val top-1 | val CE | val regression |",
+            "|---|---|---|---|",
+        ]
+        for row in sweep["rows"]:
+            mark = " **(selected)**" if row["w_cross_entropy"] == sweep["best"]["w_cross_entropy"] else ""
+            out.append(
+                f"| {row['w_cross_entropy']}{mark} | {row['val_top1_accuracy']:.4f} | "
+                f"{row['val_cross_entropy']:.4f} | {row['val_regression']:.4f} |"
+            )
+        spread = max(r["val_top1_accuracy"] for r in sweep["rows"]) - min(
+            r["val_top1_accuracy"] for r in sweep["rows"]
+        )
+        out += [
+            "",
+            f"**Read this as inconclusive.** The top-1 spread across all four weights is "
+            f"{spread:.4f} over {sweep['settings']['max_steps']} steps and a handful of validation "
+            "examples, which is noise. The regression term does rise monotonically with the "
+            "weight, so the sweep mechanism works; it simply does not separate the candidates at "
+            "this scale. 0.03 was taken as the winner because something had to be, not because it "
+            "is established.",
+            "",
+        ]
+    if eagle_training and eagle_training.get("history"):
+        h = eagle_training["history"][-1]
+        out += [
+            f"EAGLE drafter ({eagle_training['num_parameters']:,} params, "
+            f"w_cross_entropy={eagle_training['config']['w_cross_entropy']}, "
+            f"{eagle_training['config']['max_steps']} steps): "
+            f"validation top-1 {h['val_top1_accuracy']:.4f}.",
+            "",
+        ]
+
     out += [
         "### Domain shift — mean accepted length (hardware-independent)",
         "",

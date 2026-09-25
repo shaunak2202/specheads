@@ -1,0 +1,425 @@
+{
+  "generated_at": "2026-09-24T21:01:54.647901+00:00",
+  "commit": "831722edc8e05027786f744757eaa483c2395844",
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.4-arm64-arm-64bit",
+    "commit": "831722edc8e05027786f744757eaa483c2395844",
+    "dirty": true,
+    "libraries": {
+      "torch": "2.14.0",
+      "transformers": "5.17.0",
+      "datasets": "5.0.1",
+      "accelerate": "1.15.0",
+      "numpy": "2.4.6",
+      "scipy": "1.17.1"
+    },
+    "gpu": {
+      "available": false,
+      "reason": "no CUDA device"
+    }
+  },
+  "settings": {
+    "label": "eagle_mixed",
+    "heads": "results/eagle_mixed/drafter.pt",
+    "drafter_type": "eagle",
+    "device": "mps",
+    "dtype": "float16",
+    "n_prompts": 16,
+    "max_new_tokens": 96,
+    "seed": 1234
+  },
+  "hardware_note": "tokens/sec and speedup describe THIS device and do not transfer. mean_accepted_length, tokens_per_forward, acceptance_by_depth and lossless are properties of the drafter and target and do transfer.",
+  "rows": [
+    {
+      "drafter": "vanilla",
+      "domain": "chat",
+      "tree": null,
+      "median_tokens_per_second": 40.18245766745948,
+      "mean_tokens_per_forward": 1.0,
+      "mean_accepted_length": 0.0,
+      "lossless": true,
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "chat",
+      "tree": "chain-2",
+      "mean_accepted_length": 0.113406940712134,
+      "accepted_ci_low": 0.08756267015896371,
+      "accepted_ci_high": 0.14241417184508484,
+      "mean_tokens_per_forward": 1.1134069407121339,
+      "median_tokens_per_second": 28.985470047706894,
+      "speedup_vs_vanilla": 0.7213463717820296,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 3,
+      "n_tie_attributable": 3,
+      "divergence_gaps": [
+        0.0,
+        0.0,
+        0.015625
+      ],
+      "acceptance_by_depth": {
+        "1": 0.11419508326724821,
+        "2": 0.0015860428231562252
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "chat",
+      "tree": "chain-3",
+      "mean_accepted_length": 0.113406940712134,
+      "accepted_ci_low": 0.08756267015896371,
+      "accepted_ci_high": 0.14241417184508484,
+      "mean_tokens_per_forward": 1.1134069407121339,
+      "median_tokens_per_second": 26.041412667076123,
+      "speedup_vs_vanilla": 0.6480791414648824,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 3,
+      "n_tie_attributable": 3,
+      "divergence_gaps": [
+        0.0,
+        0.0,
+        0.015625
+      ],
+      "acceptance_by_depth": {
+        "1": 0.11419508326724821,
+        "2": 0.0015860428231562252,
+        "3": 0.0
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "chat",
+      "tree": "chain-5",
+      "mean_accepted_length": 0.10441551622615416,
+      "accepted_ci_low": 0.08385050592412382,
+      "accepted_ci_high": 0.125718988631581,
+      "mean_tokens_per_forward": 1.1044155162261542,
+      "median_tokens_per_second": 20.95434989811535,
+      "speedup_vs_vanilla": 0.5214800466295166,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 3,
+      "n_tie_attributable": 3,
+      "divergence_gaps": [
+        0.0,
+        0.015625,
+        0.015625
+      ],
+      "acceptance_by_depth": {
+        "1": 0.10464201416207711,
+        "2": 0.0023603461841070024,
+        "3": 0.0,
+        "4": 0.0,
+        "5": 0.0
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "chat",
+      "tree": "tree-3x2",
+      "mean_accepted_length": 0.22546518241715907,
+      "accepted_ci_low": 0.19250873739005528,
+      "accepted_ci_high": 0.2578841902602679,
+      "mean_tokens_per_forward": 1.2254651824171587,
+      "median_tokens_per_second": 30.811587656315545,
+      "speedup_vs_vanilla": 0.7667920143487728,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": false,
+      "n_mismatches": 4,
+      "n_tie_attributable": 3,
+      "divergence_gaps": [
+        0.0,
+        0.015625,
+        0.03125,
+        0.0
+      ],
+      "acceptance_by_depth": {
+        "1": 0.22183098591549297,
+        "2": 0.006161971830985915
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "chat",
+      "tree": "tree-4x2x2",
+      "mean_accepted_length": 0.25438714028707443,
+      "accepted_ci_low": 0.2176387785006676,
+      "accepted_ci_high": 0.28946957242002025,
+      "mean_tokens_per_forward": 1.2543871402870743,
+      "median_tokens_per_second": 25.337380022640748,
+      "speedup_vs_vanilla": 0.630558245897424,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 2,
+      "n_tie_attributable": 2,
+      "divergence_gaps": [
+        0.0,
+        0.0
+      ],
+      "acceptance_by_depth": {
+        "1": 0.25045045045045045,
+        "2": 0.006306306306306306,
+        "3": 0.0
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "vanilla",
+      "domain": "code",
+      "tree": null,
+      "median_tokens_per_second": 38.97728872628285,
+      "mean_tokens_per_forward": 1.0,
+      "mean_accepted_length": 0.0,
+      "lossless": true,
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "code",
+      "tree": "chain-2",
+      "mean_accepted_length": 0.22266263556970173,
+      "accepted_ci_low": 0.19245091360978497,
+      "accepted_ci_high": 0.2535709757428508,
+      "mean_tokens_per_forward": 1.222662635569702,
+      "median_tokens_per_second": 31.519306499672563,
+      "speedup_vs_vanilla": 0.8086582604812818,
+      "lossless": true,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 0,
+      "n_tie_attributable": 0,
+      "divergence_gaps": [],
+      "acceptance_by_depth": {
+        "1": 0.20192307692307693,
+        "2": 0.017628205128205128
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "code",
+      "tree": "chain-3",
+      "mean_accepted_length": 0.22266263556970173,
+      "accepted_ci_low": 0.19245091360978497,
+      "accepted_ci_high": 0.2535709757428508,
+      "mean_tokens_per_forward": 1.222662635569702,
+      "median_tokens_per_second": 28.11551753214706,
+      "speedup_vs_vanilla": 0.7213307659644482,
+      "lossless": true,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 0,
+      "n_tie_attributable": 0,
+      "divergence_gaps": [],
+      "acceptance_by_depth": {
+        "1": 0.19951923076923078,
+        "2": 0.017628205128205128,
+        "3": 0.002403846153846154
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "code",
+      "tree": "chain-5",
+      "mean_accepted_length": 0.22266263556970173,
+      "accepted_ci_low": 0.19245091360978497,
+      "accepted_ci_high": 0.2535709757428508,
+      "mean_tokens_per_forward": 1.222662635569702,
+      "median_tokens_per_second": 23.22514809506893,
+      "speedup_vs_vanilla": 0.5958636132483975,
+      "lossless": true,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 0,
+      "n_tie_attributable": 0,
+      "divergence_gaps": [],
+      "acceptance_by_depth": {
+        "1": 0.19951923076923078,
+        "2": 0.017628205128205128,
+        "3": 0.002403846153846154,
+        "4": 0.0,
+        "5": 0.0
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "code",
+      "tree": "tree-3x2",
+      "mean_accepted_length": 0.3582000829227558,
+      "accepted_ci_low": 0.31031464639935,
+      "accepted_ci_high": 0.4064508395852989,
+      "mean_tokens_per_forward": 1.3582000829227554,
+      "median_tokens_per_second": 34.05259991018126,
+      "speedup_vs_vanilla": 0.8736523504575932,
+      "lossless": true,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 0,
+      "n_tie_attributable": 0,
+      "divergence_gaps": [],
+      "acceptance_by_depth": {
+        "1": 0.32890070921985815,
+        "2": 0.022163120567375887
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "code",
+      "tree": "tree-4x2x2",
+      "mean_accepted_length": 0.38473906232652666,
+      "accepted_ci_low": 0.3368493802262459,
+      "accepted_ci_high": 0.4312333068771664,
+      "mean_tokens_per_forward": 1.3847390623265268,
+      "median_tokens_per_second": 29.720075966614946,
+      "speedup_vs_vanilla": 0.7624972628374314,
+      "lossless": true,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 0,
+      "n_tie_attributable": 0,
+      "divergence_gaps": [],
+      "acceptance_by_depth": {
+        "1": 0.35171790235081374,
+        "2": 0.022603978300180832,
+        "3": 0.003616636528028933
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "vanilla",
+      "domain": "math",
+      "tree": null,
+      "median_tokens_per_second": 38.68313801220859,
+      "mean_tokens_per_forward": 1.0,
+      "mean_accepted_length": 0.0,
+      "lossless": true,
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "math",
+      "tree": "chain-2",
+      "mean_accepted_length": 0.4107386778793564,
+      "accepted_ci_low": 0.3556623274168635,
+      "accepted_ci_high": 0.46619883898586856,
+      "mean_tokens_per_forward": 1.410738677879356,
+      "median_tokens_per_second": 35.334720633887834,
+      "speedup_vs_vanilla": 0.9134398719859806,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 1,
+      "n_tie_attributable": 1,
+      "divergence_gaps": [
+        0.0
+      ],
+      "acceptance_by_depth": {
+        "1": 0.33026678932842685,
+        "2": 0.07175712971481141
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "math",
+      "tree": "chain-3",
+      "mean_accepted_length": 0.4185367749783611,
+      "accepted_ci_low": 0.364032783037056,
+      "accepted_ci_high": 0.47452308758671624,
+      "mean_tokens_per_forward": 1.418536774978361,
+      "median_tokens_per_second": 31.117239781402745,
+      "speedup_vs_vanilla": 0.8044135346926092,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 1,
+      "n_tie_attributable": 1,
+      "divergence_gaps": [
+        0.0
+      ],
+      "acceptance_by_depth": {
+        "1": 0.3283996299722479,
+        "2": 0.06938020351526364,
+        "3": 0.012025901942645698
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "math",
+      "tree": "chain-5",
+      "mean_accepted_length": 0.423375399609837,
+      "accepted_ci_low": 0.36551372723203557,
+      "accepted_ci_high": 0.48266059213466056,
+      "mean_tokens_per_forward": 1.4233753996098368,
+      "median_tokens_per_second": 26.598063977308957,
+      "speedup_vs_vanilla": 0.6875880640529856,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 1,
+      "n_tie_attributable": 1,
+      "divergence_gaps": [
+        0.015625
+      ],
+      "acceptance_by_depth": {
+        "1": 0.3246753246753247,
+        "2": 0.06957328385899815,
+        "3": 0.012987012987012988,
+        "4": 0.0055658627087198514,
+        "5": 0.0009276437847866419
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "math",
+      "tree": "tree-3x2",
+      "mean_accepted_length": 0.5821190511596221,
+      "accepted_ci_low": 0.5140023019993805,
+      "accepted_ci_high": 0.6506377611316085,
+      "mean_tokens_per_forward": 1.5821190511596221,
+      "median_tokens_per_second": 38.89992825893654,
+      "speedup_vs_vanilla": 1.0056042569933064,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 1,
+      "n_tie_attributable": 1,
+      "divergence_gaps": [
+        0.015625
+      ],
+      "acceptance_by_depth": {
+        "1": 0.4691358024691358,
+        "2": 0.10082304526748971
+      },
+      "n_prompts": 16
+    },
+    {
+      "drafter": "eagle_mixed",
+      "domain": "math",
+      "tree": "tree-4x2x2",
+      "mean_accepted_length": 0.6480623738069622,
+      "accepted_ci_low": 0.5746024513180602,
+      "accepted_ci_high": 0.7238959268431635,
+      "mean_tokens_per_forward": 1.6480623738069622,
+      "median_tokens_per_second": 34.906627883992535,
+      "speedup_vs_vanilla": 0.9023732219701471,
+      "lossless": false,
+      "lossless_modulo_fp16_ties": true,
+      "n_mismatches": 1,
+      "n_tie_attributable": 1,
+      "divergence_gaps": [
+        0.015625
+      ],
+      "acceptance_by_depth": {
+        "1": 0.5144385026737968,
+        "2": 0.10160427807486631,
+        "3": 0.01818181818181818
+      },
+      "n_prompts": 16
+    }
+  ]
+}

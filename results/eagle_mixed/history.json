@@ -1,0 +1,10 @@
+[
+  {
+    "epoch": 0,
+    "train_loss": 1.918199324916149,
+    "val_regression": 1.5054186296463012,
+    "val_cross_entropy": 5.830183916091919,
+    "val_top1_accuracy": 0.23423728813559322,
+    "tokens_scored": 5900
+  }
+]

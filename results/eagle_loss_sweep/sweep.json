@@ -1,0 +1,79 @@
+{
+  "generated_at": "2026-09-24T20:44:13.383310+00:00",
+  "commit": "831722edc8e05027786f744757eaa483c2395844",
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.4-arm64-arm-64bit",
+    "commit": "831722edc8e05027786f744757eaa483c2395844",
+    "dirty": true,
+    "libraries": {
+      "torch": "2.14.0",
+      "transformers": "5.17.0",
+      "datasets": "5.0.1",
+      "accelerate": "1.15.0",
+      "numpy": "2.4.6",
+      "scipy": "1.17.1"
+    },
+    "gpu": {
+      "available": false,
+      "reason": "no CUDA device"
+    }
+  },
+  "settings": {
+    "mixture": "mixed",
+    "budget_tokens": 30000,
+    "max_steps": 100,
+    "max_seq_len": 512,
+    "seed": 1234,
+    "device": "mps",
+    "dtype": "float16"
+  },
+  "selection_metric": "val_top1_accuracy",
+  "rows": [
+    {
+      "w_cross_entropy": 0.03,
+      "w_regression": 1.0,
+      "train_loss": 2.1355854535102843,
+      "val_regression": 1.7686487932999928,
+      "val_cross_entropy": 7.510157446066539,
+      "val_top1_accuracy": 0.1352802954011413,
+      "steps": 100
+    },
+    {
+      "w_cross_entropy": 0.1,
+      "w_regression": 1.0,
+      "train_loss": 2.802918220758438,
+      "val_regression": 1.8734655777613323,
+      "val_cross_entropy": 7.283750494321187,
+      "val_top1_accuracy": 0.1265525344075193,
+      "steps": 100
+    },
+    {
+      "w_cross_entropy": 0.3,
+      "w_regression": 1.0,
+      "train_loss": 4.54842898607254,
+      "val_regression": 2.012988140185674,
+      "val_cross_entropy": 8.4833216269811,
+      "val_top1_accuracy": 0.12823094998321585,
+      "steps": 100
+    },
+    {
+      "w_cross_entropy": 1.0,
+      "w_regression": 1.0,
+      "train_loss": 10.440020942687989,
+      "val_regression": 2.1176010767618814,
+      "val_cross_entropy": 7.97963563601176,
+      "val_top1_accuracy": 0.13326619671030548,
+      "steps": 100
+    }
+  ],
+  "best": {
+    "w_cross_entropy": 0.03,
+    "w_regression": 1.0,
+    "train_loss": 2.1355854535102843,
+    "val_regression": 1.7686487932999928,
+    "val_cross_entropy": 7.510157446066539,
+    "val_top1_accuracy": 0.1352802954011413,
+    "steps": 100
+  }
+}
