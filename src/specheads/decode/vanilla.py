@@ -68,9 +68,16 @@ def _next_token_sampled(
         keep = cumulative - ordered <= top_p
         ordered = torch.where(keep, ordered, torch.zeros_like(ordered))
         ordered = ordered / ordered.sum(dim=-1, keepdim=True)
+        if generator is not None and generator.device.type != ordered.device.type:
+            choice = torch.multinomial(ordered.cpu(), num_samples=1, generator=generator)
+            return int(indices.cpu().gather(-1, choice).item())
         choice = torch.multinomial(ordered, num_samples=1, generator=generator)
         return int(indices.gather(-1, choice).item())
 
+    # A generator on another device would raise; sampling on CPU also makes the
+    # same seed reproduce across backends. See decode/sampling.sample_from.
+    if generator is not None and generator.device.type != scaled.device.type:
+        return int(torch.multinomial(scaled.cpu(), num_samples=1, generator=generator).item())
     return int(torch.multinomial(scaled, num_samples=1, generator=generator).item())
 
 

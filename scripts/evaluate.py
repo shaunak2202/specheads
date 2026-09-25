@@ -219,6 +219,11 @@ def main() -> int:
 
             median_tps = sorted(tps)[len(tps) // 2]
             low, high = bootstrap_ci(accepted, seed=args.seed)
+            # Speedup CI is bootstrapped over PAIRED per-prompt ratios: the same
+            # prompt timed both ways. Bootstrapping the two medians independently
+            # would discard that pairing and widen the interval for no reason.
+            paired = [m / v for m, v in zip(tps, vanilla_tps) if v > 0]
+            speed_low, speed_high = bootstrap_ci(paired, seed=args.seed)
             row = {
                 "drafter": args.label,
                 "domain": domain,
@@ -229,6 +234,9 @@ def main() -> int:
                 "mean_tokens_per_forward": sum(per_forward) / len(per_forward),
                 "median_tokens_per_second": median_tps,
                 "speedup_vs_vanilla": speedup(median_tps, vanilla_median),
+                "speedup_mean_paired": sum(paired) / len(paired) if paired else float("nan"),
+                "speedup_ci_low": speed_low,
+                "speedup_ci_high": speed_high,
                 "lossless": mismatches == 0,
                 "lossless_modulo_fp16_ties": mismatches == tie_attributable,
                 "n_mismatches": mismatches,

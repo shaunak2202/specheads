@@ -47,8 +47,8 @@ why the domain-shift claim rests on those and not on tok/s.
 | 3 | Medusa heads | ✅ two K=5 drafters (chat-only, mixed) |
 | 4 | Tree verification | ✅ lossless modulo fp16 ties, see below |
 | 5 | EAGLE drafter | 🟡 sweep + training ran; sweep inconclusive, drafter undertrained |
-| 6 | Experiments | 🟡 domain shift + tree sweep done; **sampling (temperature > 0) not run** |
-| 7 | Write-up | ✅ |
+| 6 | Experiments | ✅ domain shift, tree sweep, sampling (both verification rules) |
+| 7 | Write-up | ✅ incl. tree-attention diagram |
 
 ## Results
 
@@ -109,62 +109,95 @@ Tokens accepted per step, excluding the bonus token. 95% bootstrap CI over promp
 
 ### Throughput (this device only)
 
-| Drafter | Domain | Tree | tok/s (median) | Speedup | tok/forward |
+| Drafter | Domain | Tree | tok/s (median) | Speedup [95% CI] | tok/forward |
 |---|---|---|---|---|---|
-| vanilla | chat | — | 40.9 | 1.00x | 1.000 |
-| `medusa_chat` | chat | chain-2 | 35.1 | 0.86x | 1.214 |
-| `medusa_chat` | chat | chain-3 | 32.4 | 0.79x | 1.215 |
-| `medusa_chat` | chat | chain-5 | 30.9 | 0.76x | 1.212 |
-| `medusa_chat` | chat | tree-3x2 | 34.0 | 0.83x | 1.381 |
-| `medusa_chat` | chat | tree-4x2x2 | 37.2 | 0.91x | 1.440 |
-| vanilla | code | — | 37.5 | 1.00x | 1.000 |
-| `medusa_chat` | code | chain-2 | 37.6 | 1.00x | 1.289 |
-| `medusa_chat` | code | chain-3 | 36.7 | 0.98x | 1.295 |
-| `medusa_chat` | code | chain-5 | 36.2 | 0.97x | 1.301 |
-| `medusa_chat` | code | tree-3x2 | 41.3 | 1.10x | 1.464 |
-| `medusa_chat` | code | tree-4x2x2 | 40.3 | 1.08x | 1.520 |
-| vanilla | math | — | 38.1 | 1.00x | 1.000 |
-| `medusa_chat` | math | chain-2 | 37.7 | 0.99x | 1.286 |
-| `medusa_chat` | math | chain-3 | 37.8 | 0.99x | 1.289 |
-| `medusa_chat` | math | chain-5 | 37.3 | 0.98x | 1.297 |
-| `medusa_chat` | math | tree-3x2 | 41.0 | 1.07x | 1.472 |
-| `medusa_chat` | math | tree-4x2x2 | 41.7 | 1.09x | 1.539 |
-| vanilla | chat | — | 40.7 | 1.00x | 1.000 |
-| `medusa_mixed` | chat | chain-2 | 34.6 | 0.85x | 1.168 |
-| `medusa_mixed` | chat | chain-3 | 34.0 | 0.84x | 1.169 |
-| `medusa_mixed` | chat | chain-5 | 33.4 | 0.82x | 1.165 |
-| `medusa_mixed` | chat | tree-3x2 | 38.6 | 0.95x | 1.314 |
-| `medusa_mixed` | chat | tree-4x2x2 | 38.1 | 0.94x | 1.357 |
-| vanilla | code | — | 36.6 | 1.00x | 1.000 |
-| `medusa_mixed` | code | chain-2 | 38.4 | 1.05x | 1.381 |
-| `medusa_mixed` | code | chain-3 | 40.2 | 1.10x | 1.395 |
-| `medusa_mixed` | code | chain-5 | 39.8 | 1.09x | 1.402 |
-| `medusa_mixed` | code | tree-3x2 | 46.6 | 1.27x | 1.600 |
-| `medusa_mixed` | code | tree-4x2x2 | 46.3 | 1.26x | 1.674 |
-| vanilla | math | — | 39.7 | 1.00x | 1.000 |
-| `medusa_mixed` | math | chain-2 | 50.2 | 1.26x | 1.687 |
-| `medusa_mixed` | math | chain-3 | 36.8 | 0.93x | 1.757 |
-| `medusa_mixed` | math | chain-5 | 14.9 | 0.37x | 1.782 |
-| `medusa_mixed` | math | tree-3x2 | 53.4 | 1.34x | 1.904 |
-| `medusa_mixed` | math | tree-4x2x2 | 55.3 | 1.39x | 2.039 |
-| vanilla | chat | — | 40.2 | 1.00x | 1.000 |
-| `eagle_mixed` | chat | chain-2 | 29.0 | 0.72x | 1.113 |
-| `eagle_mixed` | chat | chain-3 | 26.0 | 0.65x | 1.113 |
-| `eagle_mixed` | chat | chain-5 | 21.0 | 0.52x | 1.104 |
-| `eagle_mixed` | chat | tree-3x2 | 30.8 | 0.77x | 1.225 |
-| `eagle_mixed` | chat | tree-4x2x2 | 25.3 | 0.63x | 1.254 |
-| vanilla | code | — | 39.0 | 1.00x | 1.000 |
-| `eagle_mixed` | code | chain-2 | 31.5 | 0.81x | 1.223 |
-| `eagle_mixed` | code | chain-3 | 28.1 | 0.72x | 1.223 |
-| `eagle_mixed` | code | chain-5 | 23.2 | 0.60x | 1.223 |
-| `eagle_mixed` | code | tree-3x2 | 34.1 | 0.87x | 1.358 |
-| `eagle_mixed` | code | tree-4x2x2 | 29.7 | 0.76x | 1.385 |
-| vanilla | math | — | 38.7 | 1.00x | 1.000 |
-| `eagle_mixed` | math | chain-2 | 35.3 | 0.91x | 1.411 |
-| `eagle_mixed` | math | chain-3 | 31.1 | 0.80x | 1.419 |
-| `eagle_mixed` | math | chain-5 | 26.6 | 0.69x | 1.423 |
-| `eagle_mixed` | math | tree-3x2 | 38.9 | 1.01x | 1.582 |
-| `eagle_mixed` | math | tree-4x2x2 | 34.9 | 0.90x | 1.648 |
+| vanilla | chat | — | 39.1 | 1.00x | 1.000 |
+| `medusa_chat` | chat | chain-2 | 35.5 | 0.91x [0.83, 0.95] | 1.214 |
+| `medusa_chat` | chat | chain-3 | 34.9 | 0.89x [0.87, 0.96] | 1.215 |
+| `medusa_chat` | chat | chain-5 | 33.3 | 0.85x [0.80, 0.88] | 1.212 |
+| `medusa_chat` | chat | tree-3x2 | 39.3 | 1.00x [0.97, 1.09] | 1.381 |
+| `medusa_chat` | chat | tree-4x2x2 | 38.4 | 0.98x [0.91, 1.05] | 1.440 |
+| vanilla | code | — | 38.4 | 1.00x | 1.000 |
+| `medusa_chat` | code | chain-2 | 34.8 | 0.91x [0.87, 0.97] | 1.289 |
+| `medusa_chat` | code | chain-3 | 33.0 | 0.86x [0.83, 0.92] | 1.295 |
+| `medusa_chat` | code | chain-5 | 33.0 | 0.86x [0.85, 0.92] | 1.301 |
+| `medusa_chat` | code | tree-3x2 | 38.4 | 1.00x [0.97, 1.07] | 1.464 |
+| `medusa_chat` | code | tree-4x2x2 | 38.0 | 0.99x [0.96, 1.03] | 1.520 |
+| vanilla | math | — | 35.5 | 1.00x | 1.000 |
+| `medusa_chat` | math | chain-2 | 36.6 | 1.03x [0.95, 1.11] | 1.286 |
+| `medusa_chat` | math | chain-3 | 34.7 | 0.98x [0.95, 1.04] | 1.289 |
+| `medusa_chat` | math | chain-5 | 34.0 | 0.96x [0.91, 1.03] | 1.297 |
+| `medusa_chat` | math | tree-3x2 | 52.6 | 1.48x [1.39, 1.58] | 1.472 |
+| `medusa_chat` | math | tree-4x2x2 | 53.6 | 1.51x [1.44, 1.60] | 1.539 |
+| vanilla | chat | — | 51.2 | 1.00x | 1.000 |
+| `medusa_mixed` | chat | chain-2 | 45.7 | 0.89x [0.87, 0.92] | 1.168 |
+| `medusa_mixed` | chat | chain-3 | 43.5 | 0.85x [0.82, 0.88] | 1.169 |
+| `medusa_mixed` | chat | chain-5 | 43.7 | 0.85x [0.83, 0.87] | 1.165 |
+| `medusa_mixed` | chat | tree-3x2 | 49.1 | 0.96x [0.94, 1.01] | 1.314 |
+| `medusa_mixed` | chat | tree-4x2x2 | 48.7 | 0.95x [0.92, 1.00] | 1.357 |
+| vanilla | code | — | 51.8 | 1.00x | 1.000 |
+| `medusa_mixed` | code | chain-2 | 52.5 | 1.02x [0.99, 1.05] | 1.381 |
+| `medusa_mixed` | code | chain-3 | 52.1 | 1.01x [0.98, 1.04] | 1.395 |
+| `medusa_mixed` | code | chain-5 | 50.9 | 0.98x [0.95, 1.02] | 1.402 |
+| `medusa_mixed` | code | tree-3x2 | 59.4 | 1.15x [1.10, 1.16] | 1.600 |
+| `medusa_mixed` | code | tree-4x2x2 | 58.0 | 1.12x [1.08, 1.15] | 1.674 |
+| vanilla | math | — | 51.7 | 1.00x | 1.000 |
+| `medusa_mixed` | math | chain-2 | 64.0 | 1.24x [1.20, 1.32] | 1.687 |
+| `medusa_mixed` | math | chain-3 | 64.1 | 1.24x [1.23, 1.36] | 1.757 |
+| `medusa_mixed` | math | chain-5 | 63.3 | 1.22x [1.20, 1.34] | 1.782 |
+| `medusa_mixed` | math | tree-3x2 | 69.3 | 1.34x [1.29, 1.41] | 1.904 |
+| `medusa_mixed` | math | tree-4x2x2 | 71.8 | 1.39x [1.32, 1.46] | 2.039 |
+| vanilla | chat | — | 51.9 | 1.00x | 1.000 |
+| `eagle_mixed` | chat | chain-2 | 37.5 | 0.72x [0.71, 0.75] | 1.113 |
+| `eagle_mixed` | chat | chain-3 | 33.0 | 0.64x [0.63, 0.66] | 1.113 |
+| `eagle_mixed` | chat | chain-5 | 27.3 | 0.53x [0.52, 0.54] | 1.104 |
+| `eagle_mixed` | chat | tree-3x2 | 39.2 | 0.75x [0.73, 0.78] | 1.225 |
+| `eagle_mixed` | chat | tree-4x2x2 | 35.0 | 0.67x [0.65, 0.69] | 1.254 |
+| vanilla | code | — | 50.8 | 1.00x | 1.000 |
+| `eagle_mixed` | code | chain-2 | 39.8 | 0.78x [0.78, 0.82] | 1.223 |
+| `eagle_mixed` | code | chain-3 | 35.5 | 0.70x [0.69, 0.73] | 1.223 |
+| `eagle_mixed` | code | chain-5 | 29.6 | 0.58x [0.57, 0.60] | 1.223 |
+| `eagle_mixed` | code | tree-3x2 | 43.7 | 0.86x [0.81, 0.87] | 1.358 |
+| `eagle_mixed` | code | tree-4x2x2 | 37.7 | 0.74x [0.71, 0.76] | 1.385 |
+| vanilla | math | — | 51.2 | 1.00x | 1.000 |
+| `eagle_mixed` | math | chain-2 | 48.2 | 0.94x [0.89, 0.97] | 1.411 |
+| `eagle_mixed` | math | chain-3 | 43.0 | 0.84x [0.80, 0.87] | 1.419 |
+| `eagle_mixed` | math | chain-5 | 36.0 | 0.70x [0.66, 0.72] | 1.423 |
+| `eagle_mixed` | math | tree-3x2 | 50.7 | 0.99x [0.95, 1.03] | 1.582 |
+| `eagle_mixed` | math | tree-4x2x2 | 45.5 | 0.89x [0.86, 0.94] | 1.648 |
+
+### Where the fp16 divergences come from (precision vs kernel)
+
+| precision | attention kernel | exact-tie rate | divergent prompts |
+|---|---|---|---|
+| float16 | sdpa | 0.3912% | 3 / 8 |
+| float16 | eager | 0.0000% | 0 / 8 |
+| float32 | sdpa | 0.0000% | 0 / 8 |
+
+### Sampling (temperature > 0)
+
+`rejection` preserves the target distribution; `typical` does **not**. Its higher acceptance is bought with fidelity, so the two rows are not comparable as if they were the same algorithm.
+
+| Domain | T | Mode | Preserves distribution | Mean accepted | tok/s | Speedup |
+|---|---|---|---|---|---|---|
+| chat | 0.7 | vanilla | — | — | 49.1 | 1.00x |
+| chat | 0.7 | `rejection` | **yes** | 0.177 | 37.5 | 0.76x |
+| chat | 0.7 | `typical` | no | 0.228 | 39.6 | 0.81x |
+| chat | 1.0 | vanilla | — | — | 48.3 | 1.00x |
+| chat | 1.0 | `rejection` | **yes** | 0.161 | 37.0 | 0.77x |
+| chat | 1.0 | `typical` | no | 0.197 | 38.2 | 0.79x |
+| code | 0.7 | vanilla | — | — | 48.0 | 1.00x |
+| code | 0.7 | `rejection` | **yes** | 0.290 | 40.2 | 0.84x |
+| code | 0.7 | `typical` | no | 0.314 | 40.2 | 0.84x |
+| code | 1.0 | vanilla | — | — | 48.2 | 1.00x |
+| code | 1.0 | `rejection` | **yes** | 0.255 | 39.3 | 0.82x |
+| code | 1.0 | `typical` | no | 0.313 | 41.8 | 0.87x |
+| math | 0.7 | vanilla | — | — | 48.4 | 1.00x |
+| math | 0.7 | `rejection` | **yes** | 0.673 | 53.5 | 1.10x |
+| math | 0.7 | `typical` | no | 0.726 | 53.0 | 1.09x |
+| math | 1.0 | vanilla | — | — | 47.7 | 1.00x |
+| math | 1.0 | `rejection` | **yes** | 0.585 | 49.6 | 1.04x |
+| math | 1.0 | `typical` | no | 0.637 | 52.0 | 1.09x |
 
 ### Losslessness
 
@@ -208,6 +241,70 @@ fp16 forward accumulates, but it is not something this run *proved*.
 So the honest statement is: **lossless in fp32; lossless modulo fp16 argmax ties in
 fp16.** `scripts/evaluate.py` reports `lossless` and `lossless_modulo_fp16_ties`
 separately, with the measured logit gap for every divergence.
+
+## How tree verification works
+
+A step drafts several candidate continuations at once, then verifies **all of
+them in a single target forward pass**. The mask is what makes that possible:
+each candidate must see the prefix and its own ancestors, and nothing else.
+
+Take the tree `tree-3x2` — three candidates at depth 1, two children under the
+best of them:
+
+```
+                    root = last accepted token  (pos 5)
+                   /            |            \
+             c0 "the"      c1 "a"       c2 "our"      depth 1  (pos 6)
+            /        \
+      c3 "cat"   c4 "dog"                              depth 2  (pos 7)
+```
+
+Five candidates go through the target in one forward. Two things have to be right:
+
+**Position ids repeat across siblings.** `c0`, `c1`, `c2` all sit at position 6 —
+they are competing hypotheses for the *same* slot, not a sequence of three
+tokens. If they got 6, 7, 8 then RoPE would encode a candidate's branch into its
+own embedding, and verification would be scoring the wrong thing.
+
+```
+node      root  c0  c1  c2  c3  c4
+position     5   6   6   6   7   7
+```
+
+**The attention mask is a tree, not a triangle.** Rows are queries, columns are
+keys; `x` means "may attend". `P` is the cached prefix:
+
+```
+          P P P P P | root | c0  c1  c2 | c3  c4
+root      x x x x x |  x   |  .   .   . |  .   .
+c0        x x x x x |  x   |  x   .   . |  .   .
+c1        x x x x x |  x   |  .   x   . |  .   .
+c2        x x x x x |  x   |  .   .   x |  .   .
+c3        x x x x x |  x   |  x   .   . |  x   .
+c4        x x x x x |  x   |  x   .   . |  .   x
+```
+
+`c1` cannot see `c0`; `c3` sees its parent `c0` but not its uncle `c2`. A
+standard causal mask would be lower-triangular here and would let `c1` attend to
+`c0` — still producing fluent text, still passing a smoke test, and silently not
+what greedy decoding would have said. That is the failure mode
+`tests/test_tree.py::test_siblings_cannot_see_each_other` exists to catch.
+
+**Verification** then walks down from the root, taking the one child whose token
+matches the target's own greedy argmax at the parent's position, and stops at the
+first depth where none matches. Exactly one child can match, because siblings are
+distinct ranks of the same top-k. The accepted path plus the target's next token
+(the "bonus token") is what the step emits — so even a fully rejected step still
+advances by one and never loses to vanilla.
+
+**Then the cache is pruned.** After the forward, the KV cache holds *every*
+candidate including the rejected branches. Only the prefix, the root and the
+accepted path may survive; leaving `c1` and `c2` in the cache would let the next
+step attend to tokens the model never emitted. This is the single most bug-prone
+step in the project, and `results/` is only meaningful because
+`tests/test_losslessness.py` exercises it with a drafter whose candidates are
+*always* accepted — under a random drafter the accepted path is almost always
+empty and this code path barely runs.
 
 ## Where the fp16 divergences actually come from
 
@@ -305,8 +402,12 @@ These are real and they bound every number above.
   ceilings. Best observed speedup was 1.39×; published Medusa results are ~2×+.
 - **Small evaluation.** 16 prompts per domain at 96 new tokens. CIs are reported for
   exactly this reason, and one headline comparison (chat) is inconclusive because of it.
-- **Sampling never ran.** Phase 6 experiment 3 (temperature > 0, typical acceptance /
-  rejection-sampling verification) is not implemented or measured. Only greedy.
+- **Sampling is chain-only.** Both verification rules are implemented and measured,
+  but `rejection` is restricted to chains: its distribution-preserving proof is
+  stated for a linear sequence of draft positions, and extending it to a branching
+  tree needs the multi-round SpecInfer construction, which is not implemented.
+  Tree + rejection raises rather than silently claiming a guarantee it has not
+  earned.
 - **The EAGLE sweep is inconclusive**, as its own section states. `w_cross_entropy`
   was set to 0.03 because a value was needed, not because 0.03 was shown to be right.
 - **Decontamination found nothing**, which is weaker evidence than it sounds: 250 code

@@ -48,3 +48,39 @@ class MedusaDrafter:
             depth, rank = len(path), path[-1]
             tokens[node] = ranked[depth - 1, rank]
         return tokens
+
+    @torch.no_grad()
+    def draft_chain_sampled(
+        self,
+        depth: int,
+        context: "DraftContext",
+        temperature: float = 1.0,
+        generator: torch.Generator | None = None,
+    ) -> tuple[list[int], torch.Tensor]:
+        """Draft a chain by **sampling** each head, returning tokens and their q.
+
+        Separate from `draft` on purpose. `draft` takes top-k, which is right for
+        greedy verification and *wrong* for rejection sampling: that algorithm
+        preserves the target distribution only when the draft is drawn from q.
+        Reusing the greedy path here would bias the output while still looking
+        plausible -- see `tests/test_sampling.py`.
+
+        Returns:
+            ``(tokens, probs)`` where ``probs`` is ``[depth, vocab]``, head k's
+            full distribution at temperature.
+        """
+        from ..decode.sampling import sample_from, softmax_with_temperature
+
+        if depth > self.heads.num_heads:
+            raise ValueError(f"depth {depth} exceeds {self.heads.num_heads} trained heads")
+
+        head_dtype = next(self.heads.parameters()).dtype
+        weight_dtype = next(self.lm_head.parameters()).dtype
+        features = self.heads(context.hidden.to(head_dtype).unsqueeze(0))
+        logits = self.lm_head(features.squeeze(1).to(weight_dtype))
+
+        probs = torch.stack(
+            [softmax_with_temperature(logits[k], temperature) for k in range(depth)]
+        )
+        tokens = [sample_from(probs[k], generator) for k in range(depth)]
+        return tokens, probs

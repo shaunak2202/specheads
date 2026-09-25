@@ -94,3 +94,35 @@ def test_float_mask_matches_bool_mask():
     additive = tree.attention_mask(prefix_len=3, dtype=torch.float32)
     assert torch.equal(additive == 0.0, boolean)
     assert (additive[~boolean] == torch.finfo(torch.float32).min).all()
+
+
+def test_readme_tree_diagram_matches_the_implementation():
+    """Pins the worked example in the README against the real mask.
+
+    The diagram is the main explanation of how tree attention works. If the mask
+    changes and the diagram does not, the README becomes confidently wrong, which
+    is worse than having no diagram at all.
+    """
+    from specheads.decode.speculative import build_step_mask, build_step_positions
+
+    tree = TreeSpec.from_widths((3, 2))
+    assert tree.ordered == ((0,), (1,), (2,), (0, 0), (0, 1))
+    assert tree.parents == (-1, -1, -1, 0, 0)
+
+    # Siblings share a position; depth 2 sits one later. Prefix length 5.
+    assert build_step_positions(tree, 5)[0].tolist() == [5, 6, 6, 6, 7, 7]
+
+    mask = build_step_mask(tree, prefix_len=5)[0, 0]
+    assert mask[:, :5].all()  # everything sees the whole prefix
+    assert mask[:, 5].all()  # and the root
+
+    # Candidate block, exactly as drawn in the README.
+    expected = [
+        [False, False, False, False, False],  # root sees no candidate
+        [True, False, False, False, False],  # c0 -> itself
+        [False, True, False, False, False],  # c1 -> itself only, NOT c0
+        [False, False, True, False, False],  # c2
+        [True, False, False, True, False],  # c3 -> parent c0 + itself, not c2
+        [True, False, False, False, True],  # c4 -> parent c0 + itself
+    ]
+    assert mask[:, 6:].tolist() == expected

@@ -1,0 +1,226 @@
+{
+  "generated_at": "2026-09-25T18:37:38.069993+00:00",
+  "commit": "adc6913edfc674f4cb8b7378bd12706862788566",
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.4-arm64-arm-64bit",
+    "commit": "adc6913edfc674f4cb8b7378bd12706862788566",
+    "dirty": true,
+    "libraries": {
+      "torch": "2.14.0",
+      "transformers": "5.17.0",
+      "datasets": "5.0.1",
+      "accelerate": "1.15.0",
+      "numpy": "2.4.6",
+      "scipy": "1.17.1"
+    },
+    "gpu": {
+      "available": false,
+      "reason": "no CUDA device"
+    }
+  },
+  "settings": {
+    "label": "medusa_mixed",
+    "depth": 3,
+    "n_prompts": 10,
+    "max_new_tokens": 96,
+    "device": "mps",
+    "dtype": "float16",
+    "seed": 1234
+  },
+  "note": "rejection preserves the target distribution; typical does not. Higher acceptance under typical is a fidelity trade, not a free win, and the two rows are not comparable as if they were the same algorithm.",
+  "rows": [
+    {
+      "mode": "vanilla_sampling",
+      "domain": "chat",
+      "temperature": 0.7,
+      "median_tokens_per_second": 49.13368924578188,
+      "mean_accepted_length": 0.0,
+      "preserves_distribution": true
+    },
+    {
+      "mode": "rejection",
+      "domain": "chat",
+      "temperature": 0.7,
+      "mean_accepted_length": 0.17710487068150865,
+      "accepted_ci_low": 0.14913031156455356,
+      "accepted_ci_high": 0.2123310503063014,
+      "median_tokens_per_second": 37.50787519149889,
+      "speedup_vs_vanilla_sampling": 0.7633840602498404,
+      "preserves_distribution": true,
+      "n_prompts": 10
+    },
+    {
+      "mode": "typical",
+      "domain": "chat",
+      "temperature": 0.7,
+      "mean_accepted_length": 0.22827897883277629,
+      "accepted_ci_low": 0.18811590436590436,
+      "accepted_ci_high": 0.26517325017325016,
+      "median_tokens_per_second": 39.559968837913196,
+      "speedup_vs_vanilla_sampling": 0.8051495714075534,
+      "preserves_distribution": false,
+      "n_prompts": 10
+    },
+    {
+      "mode": "vanilla_sampling",
+      "domain": "chat",
+      "temperature": 1.0,
+      "median_tokens_per_second": 48.31885208653403,
+      "mean_accepted_length": 0.0,
+      "preserves_distribution": true
+    },
+    {
+      "mode": "rejection",
+      "domain": "chat",
+      "temperature": 1.0,
+      "mean_accepted_length": 0.16055210588061938,
+      "accepted_ci_low": 0.14413171713978962,
+      "accepted_ci_high": 0.18074303723851418,
+      "median_tokens_per_second": 37.02871438451411,
+      "speedup_vs_vanilla_sampling": 0.7663409370363257,
+      "preserves_distribution": true,
+      "n_prompts": 10
+    },
+    {
+      "mode": "typical",
+      "domain": "chat",
+      "temperature": 1.0,
+      "mean_accepted_length": 0.19684177933235053,
+      "accepted_ci_low": 0.1615905497325294,
+      "accepted_ci_high": 0.23944626231011207,
+      "median_tokens_per_second": 38.23530842071478,
+      "speedup_vs_vanilla_sampling": 0.7913124333384272,
+      "preserves_distribution": false,
+      "n_prompts": 10
+    },
+    {
+      "mode": "vanilla_sampling",
+      "domain": "code",
+      "temperature": 0.7,
+      "median_tokens_per_second": 47.962943625761476,
+      "mean_accepted_length": 0.0,
+      "preserves_distribution": true
+    },
+    {
+      "mode": "rejection",
+      "domain": "code",
+      "temperature": 0.7,
+      "mean_accepted_length": 0.2904618827583496,
+      "accepted_ci_low": 0.24611506822502144,
+      "accepted_ci_high": 0.339708565540857,
+      "median_tokens_per_second": 40.180331552448195,
+      "speedup_vs_vanilla_sampling": 0.8377369801562149,
+      "preserves_distribution": true,
+      "n_prompts": 10
+    },
+    {
+      "mode": "typical",
+      "domain": "code",
+      "temperature": 0.7,
+      "mean_accepted_length": 0.3140330766468485,
+      "accepted_ci_low": 0.2542122198108114,
+      "accepted_ci_high": 0.38079973616880636,
+      "median_tokens_per_second": 40.177182765679134,
+      "speedup_vs_vanilla_sampling": 0.8376713297492334,
+      "preserves_distribution": false,
+      "n_prompts": 10
+    },
+    {
+      "mode": "vanilla_sampling",
+      "domain": "code",
+      "temperature": 1.0,
+      "median_tokens_per_second": 48.199057090209074,
+      "mean_accepted_length": 0.0,
+      "preserves_distribution": true
+    },
+    {
+      "mode": "rejection",
+      "domain": "code",
+      "temperature": 1.0,
+      "mean_accepted_length": 0.25465982775841933,
+      "accepted_ci_low": 0.22330128205128205,
+      "accepted_ci_high": 0.2882709388695304,
+      "median_tokens_per_second": 39.30788705889371,
+      "speedup_vs_vanilla_sampling": 0.8155322828271371,
+      "preserves_distribution": true,
+      "n_prompts": 10
+    },
+    {
+      "mode": "typical",
+      "domain": "code",
+      "temperature": 1.0,
+      "mean_accepted_length": 0.3127224538748429,
+      "accepted_ci_low": 0.2543867243867244,
+      "accepted_ci_high": 0.38063551303790205,
+      "median_tokens_per_second": 41.78905774566604,
+      "speedup_vs_vanilla_sampling": 0.8670098601193357,
+      "preserves_distribution": false,
+      "n_prompts": 10
+    },
+    {
+      "mode": "vanilla_sampling",
+      "domain": "math",
+      "temperature": 0.7,
+      "median_tokens_per_second": 48.42165374030881,
+      "mean_accepted_length": 0.0,
+      "preserves_distribution": true
+    },
+    {
+      "mode": "rejection",
+      "domain": "math",
+      "temperature": 0.7,
+      "mean_accepted_length": 0.6733244537681697,
+      "accepted_ci_low": 0.5797610256708434,
+      "accepted_ci_high": 0.7739290370646302,
+      "median_tokens_per_second": 53.49929260530339,
+      "speedup_vs_vanilla_sampling": 1.1048629791172884,
+      "preserves_distribution": true,
+      "n_prompts": 10
+    },
+    {
+      "mode": "typical",
+      "domain": "math",
+      "temperature": 0.7,
+      "mean_accepted_length": 0.7261897265335483,
+      "accepted_ci_low": 0.5582817453000009,
+      "accepted_ci_high": 0.9042225534028813,
+      "median_tokens_per_second": 52.97258146056411,
+      "speedup_vs_vanilla_sampling": 1.0939853839908582,
+      "preserves_distribution": false,
+      "n_prompts": 10
+    },
+    {
+      "mode": "vanilla_sampling",
+      "domain": "math",
+      "temperature": 1.0,
+      "median_tokens_per_second": 47.66335174917683,
+      "mean_accepted_length": 0.0,
+      "preserves_distribution": true
+    },
+    {
+      "mode": "rejection",
+      "domain": "math",
+      "temperature": 1.0,
+      "mean_accepted_length": 0.5847714795885238,
+      "accepted_ci_low": 0.44629354796839277,
+      "accepted_ci_high": 0.71996688619244,
+      "median_tokens_per_second": 49.55833714220196,
+      "speedup_vs_vanilla_sampling": 1.0397577032139342,
+      "preserves_distribution": true,
+      "n_prompts": 10
+    },
+    {
+      "mode": "typical",
+      "domain": "math",
+      "temperature": 1.0,
+      "mean_accepted_length": 0.637347976161608,
+      "accepted_ci_low": 0.5350946885686978,
+      "accepted_ci_high": 0.7438375277072584,
+      "median_tokens_per_second": 52.02036462392824,
+      "speedup_vs_vanilla_sampling": 1.091412221651547,
+      "preserves_distribution": false,
+      "n_prompts": 10
+    }
+  ]
+}

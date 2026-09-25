@@ -70,7 +70,7 @@ def acceptance_table(evals: dict[str, dict]) -> list[str]:
 
 def throughput_table(evals: dict[str, dict]) -> list[str]:
     lines = [
-        "| Drafter | Domain | Tree | tok/s (median) | Speedup | tok/forward |",
+        "| Drafter | Domain | Tree | tok/s (median) | Speedup [95% CI] | tok/forward |",
         "|---|---|---|---|---|---|",
     ]
     for label, metrics in evals.items():
@@ -92,10 +92,15 @@ def throughput_table(evals: dict[str, dict]) -> list[str]:
                 ]
                 if match:
                     r = match[0]
+                    ci = (
+                        f"{r['speedup_vs_vanilla']:.2f}x "
+                        f"[{r['speedup_ci_low']:.2f}, {r['speedup_ci_high']:.2f}]"
+                        if "speedup_ci_low" in r
+                        else f"{r['speedup_vs_vanilla']:.2f}x"
+                    )
                     lines.append(
                         f"| `{label}` | {domain} | {tree} | "
-                        f"{r['median_tokens_per_second']:.1f} | "
-                        f"{r['speedup_vs_vanilla']:.2f}x | "
+                        f"{r['median_tokens_per_second']:.1f} | {ci} | "
                         f"{r['mean_tokens_per_forward']:.3f} |"
                     )
     if len(lines) == 2:
@@ -130,6 +135,8 @@ def build_section(results: Path) -> str:
     }
     eagle_training = load(results / "eagle_mixed" / "summary.json")
     lossless = load(results / "losslessness_mps_fp16" / "losslessness.json")
+    sampling = load(results / "sampling" / "sampling.json")
+    probe = load(results / "attention_precision_probe" / "probe.json")
     sweep = load(results / "eagle_loss_sweep" / "sweep.json")
     ties = load(results / "fp16_tie_investigation" / "investigation.json")
     distill = load(results / "distill" / "summary.json")
@@ -215,6 +222,48 @@ def build_section(results: Path) -> str:
         "### Throughput (this device only)",
         "",
     ] + throughput_table(evals) + [""]
+
+    if probe:
+        out += [
+            "### Where the fp16 divergences come from (precision vs kernel)",
+            "",
+            "| precision | attention kernel | exact-tie rate | divergent prompts |",
+            "|---|---|---|---|",
+        ]
+        for row in probe["rows"]:
+            out.append(
+                f"| {row['dtype']} | {row['attn_implementation']} | "
+                f"{row['exact_tie_rate']:.4%} | "
+                f"{row['divergent_prompts']} / {row['n_prompts']} |"
+            )
+        out += [""]
+
+    if sampling:
+        out += [
+            "### Sampling (temperature > 0)",
+            "",
+            "`rejection` preserves the target distribution; `typical` does **not**. "
+            "Its higher acceptance is bought with fidelity, so the two rows are not "
+            "comparable as if they were the same algorithm.",
+            "",
+            "| Domain | T | Mode | Preserves distribution | Mean accepted | tok/s | Speedup |",
+            "|---|---|---|---|---|---|---|",
+        ]
+        for row in sampling["rows"]:
+            if row["mode"] == "vanilla_sampling":
+                out.append(
+                    f"| {row['domain']} | {row['temperature']} | vanilla | — | — | "
+                    f"{row['median_tokens_per_second']:.1f} | 1.00x |"
+                )
+                continue
+            out.append(
+                f"| {row['domain']} | {row['temperature']} | `{row['mode']}` | "
+                f"{'**yes**' if row['preserves_distribution'] else 'no'} | "
+                f"{row['mean_accepted_length']:.3f} | "
+                f"{row['median_tokens_per_second']:.1f} | "
+                f"{row['speedup_vs_vanilla_sampling']:.2f}x |"
+            )
+        out += [""]
 
     if lossless:
         out += [
