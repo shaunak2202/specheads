@@ -3,7 +3,33 @@
 This directory is empty on purpose. **Every measurement in this repository was
 taken on Apple MPS.** Nothing here has run on the Kaggle T4 the project targets.
 
-## Why this matters more than it sounds
+## Update: the correctness question was resolved locally
+
+The original framing here — that the losslessness diagnosis needed CUDA to be
+trusted — was wrong. Holding the decode logic fixed and varying only precision
+and attention kernel (`results/attention_precision_probe/`) isolated the cause
+without any CUDA hardware:
+
+| precision | kernel | tie rate | divergent |
+|---|---|---|---|
+| fp16 | SDPA | 0.3912% | 3/8 |
+| fp16 | eager | 0.0000% | 0/8 |
+| fp32 | SDPA | 0.0000% | 0/8 |
+
+The divergences come from SDPA's fp16 softmax accumulation, not from fp16
+storage and not from a decode bug — eager fp16 and fp32 both run the identical
+tree mask and cache pruning and both diverge zero times.
+
+**What remains genuinely T4-only is the throughput numbers.** Those cannot be
+obtained on any other hardware, full stop.
+
+**Prediction for the CUDA run:** CUDA SDPA dispatches to FlashAttention or the
+memory-efficient kernel, which accumulate in fp32 even for fp16 inputs. Expect
+the tie rate to be *lower* than MPS, plausibly zero. If CUDA instead shows a
+*higher* tie rate, or any fp32 divergence, that contradicts the mechanism above
+and needs investigating.
+
+## Original framing (kept for the record)
 
 The repo's central correctness claim is that all 51 losslessness divergences are
 **fp16 argmax ties**, not a bug in the tree mask or cache pruning. The evidence

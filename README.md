@@ -24,12 +24,13 @@ benchmarking are the point; large numbers are not.
 **Phases 0–6 run on Apple MPS (no CUDA device available). EAGLE trained but
 undertrained; Phase 7 write-up complete.**
 
-> ⚠️ **The T4/CUDA verification has not been run.** The losslessness diagnosis
-> below — that all 51 divergences are fp16 argmax ties rather than a decode bug —
-> is established on **one backend only**. fp16 rounding is fixed by IEEE-754 so
-> the tie *rate* should reproduce on CUDA, but which index `argmax` returns for an
-> exact tie depends on reduction order, which is a kernel detail. The risk is a
-> false pass. See [`results/t4/PENDING.md`](results/t4/PENDING.md) and
+> ⚠️ **No CUDA hardware was ever used.** Wall-clock numbers are MPS and do not
+> transfer — that part genuinely needs a T4. The *correctness* question is now
+> settled locally though: holding the decode logic fixed and varying only
+> precision and attention kernel isolates the cause completely
+> (see [below](#where-the-fp16-divergences-actually-come-from)). Re-running on
+> CUDA is confirmation, not a load-bearing gap. See
+> [`results/t4/PENDING.md`](results/t4/PENDING.md) and
 > [`notebooks/kaggle/t4_losslessness_and_bench.py`](notebooks/kaggle/t4_losslessness_and_bench.py).
 
 The single most important caveat: **every wall-clock number here was measured on
@@ -207,6 +208,53 @@ fp16 forward accumulates, but it is not something this run *proved*.
 So the honest statement is: **lossless in fp32; lossless modulo fp16 argmax ties in
 fp16.** `scripts/evaluate.py` reports `lossless` and `lossless_modulo_fp16_ties`
 separately, with the measured logit gap for every divergence.
+
+## Where the fp16 divergences actually come from
+
+"fp16 argmax ties" was the right direction but the wrong resolution. Holding the
+decode logic fixed and varying **only** precision and attention kernel
+([`results/attention_precision_probe/`](results/attention_precision_probe/),
+8 chat prompts, 1278 scored positions):
+
+| precision | attention kernel | exact-tie rate | divergent prompts |
+|---|---|---|---|
+| fp16 | **SDPA** | **0.3912%** (5/1278) | **3 / 8** |
+| fp16 | eager | 0.0000% (0/1278) | 0 / 8 |
+| fp32 | SDPA | 0.0000% (0/1278) | 0 / 8 |
+
+Same precision, same device, same weights, same decode path — swap only the
+attention kernel and the ties vanish. So the ties are **not inherent to fp16**.
+They come from the kernel's internal accumulation policy.
+
+The mechanism is in transformers' own source. `eager_attention_forward` runs
+
+```python
+attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query.dtype)
+```
+
+— it upcasts the softmax to fp32 and casts back. The fused SDPA kernel on MPS
+does not, so attention output is coarser, and downstream logits land on the same
+representable fp16 value often enough to produce a 0.39% exact-tie rate.
+
+Three consequences:
+
+1. **The decode logic is exonerated three independent ways**, not one. fp32
+   diverges on 0/8 and eager-fp16 diverges on 0/8 — both run the *identical*
+   tree mask, verification and cache pruning. A bug there would show up in all
+   three columns.
+2. **There is an actual fix**, not just an explanation. If strict fp16
+   losslessness is required, run the target with `attn_implementation="eager"`.
+   It costs throughput and memory, which is a real trade, but it is a knob.
+3. **It changes what to expect on CUDA.** CUDA's SDPA dispatches to
+   FlashAttention or the memory-efficient kernel, both of which accumulate in
+   fp32 even for fp16 inputs. So the tie rate on a T4 is likely *lower* than on
+   MPS, plausibly zero — the opposite of the "false pass" I originally warned
+   about. That is a falsifiable prediction, and the T4 run tests it.
+
+My earlier write-up called this "the most important open item." That was an
+overstatement: it attributed the divergences to fp16 alone and stopped, when one
+more local experiment — holding precision fixed and varying the kernel — resolved
+the cause without any CUDA hardware at all.
 
 ## What the results say
 

@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-09-25T17:34:01.215721+00:00",
+  "commit": "5ae7283207a10e1f09a3569d2d6c0a8f9b7a70ba",
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.4-arm64-arm-64bit",
+    "commit": "5ae7283207a10e1f09a3569d2d6c0a8f9b7a70ba",
+    "dirty": true,
+    "libraries": {
+      "torch": "2.14.0",
+      "transformers": "5.17.0",
+      "datasets": "5.0.1",
+      "accelerate": "1.15.0",
+      "numpy": "2.4.6",
+      "scipy": "1.17.1"
+    },
+    "gpu": {
+      "available": false,
+      "reason": "no CUDA device"
+    }
+  },
+  "settings": {
+    "device": "mps",
+    "n_prompts": 8,
+    "max_new_tokens": 96,
+    "seed": 1234
+  },
+  "mechanism": "transformers' eager_attention_forward upcasts the softmax to fp32 (softmax(..., dtype=torch.float32).to(query.dtype)); the fused SDPA kernel on this backend does not. Holding precision fixed and swapping only the kernel therefore changes the tie rate.",
+  "rows": [
+    {
+      "device": "mps",
+      "dtype": "float16",
+      "attn_implementation": "sdpa",
+      "n_prompts": 8,
+      "divergent_prompts": 3,
+      "exact_tie_positions": 5,
+      "scored_positions": 1278,
+      "exact_tie_rate": 0.003912363067292645
+    },
+    {
+      "device": "mps",
+      "dtype": "float16",
+      "attn_implementation": "eager",
+      "n_prompts": 8,
+      "divergent_prompts": 0,
+      "exact_tie_positions": 0,
+      "scored_positions": 1278,
+      "exact_tie_rate": 0.0
+    },
+    {
+      "device": "mps",
+      "dtype": "float32",
+      "attn_implementation": "sdpa",
+      "n_prompts": 8,
+      "divergent_prompts": 0,
+      "exact_tie_positions": 0,
+      "scored_positions": 1278,
+      "exact_tie_rate": 0.0
+    }
+  ]
+}
