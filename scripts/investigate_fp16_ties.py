@@ -6,6 +6,13 @@ each, then measures how often the target's top-1 and top-2 logits are exactly
 equal in fp16. If fp32 is perfectly lossless while fp16 is not, and the fp16
 divergences sit on exact ties, the cause is precision rather than the tree mask
 or cache pruning.
+
+Both precisions run on the **same** backend by default, so the comparison
+isolates precision. Comparing across backends (CUDA vs MPS) is a separate
+question and is answered by running this script once per machine and diffing the
+two result files -- fp16 rounding is identical by IEEE-754, but reduction
+*order* is a kernel implementation detail, so an exact tie can break differently
+on different hardware. That is precisely why this must be re-run on CUDA.
 """
 
 from __future__ import annotations
@@ -26,6 +33,24 @@ from specheads.model.medusa_heads import MedusaHeads
 from specheads.model.target import encode_chat, load_target
 from specheads.utils.env import capture_env, git_commit
 from specheads.utils.seed import seed_everything
+
+
+def default_device() -> str:
+    """Prefer real CUDA, then Apple MPS, then CPU."""
+    if torch.cuda.is_available():
+        return "cuda"
+    if torch.backends.mps.is_available():
+        return "mps"
+    return "cpu"
+
+
+def empty_cache(device: str) -> None:
+    """Release cached blocks on whichever backend is in use."""
+    kind = torch.device(device).type
+    if kind == "cuda" and torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    elif kind == "mps" and torch.backends.mps.is_available():
+        torch.mps.empty_cache()
 
 
 def load_heads(path: Path, hidden_size: int, device) -> MedusaHeads:
@@ -100,8 +125,7 @@ def run_pass(device: str, dtype: str, heads_path: Path, prompts, max_new_tokens,
     model = target.model
     del target, drafter, model
     gc.collect()
-    if torch.backends.mps.is_available():
-        torch.mps.empty_cache()
+    empty_cache(device)
 
     return {
         "device": device,
@@ -122,20 +146,34 @@ def main() -> int:
     parser.add_argument("--n-prompts", type=int, default=8)
     parser.add_argument("--max-new-tokens", type=int, default=96)
     parser.add_argument("--seed", type=int, default=1234)
+    parser.add_argument(
+        "--fp16-device", default=None,
+        help="backend for the fp16 pass (default: cuda, else mps, else cpu)",
+    )
+    parser.add_argument(
+        "--fp32-device", default=None,
+        help="backend for the fp32 control (default: same as --fp16-device, so the "
+             "only variable is precision)",
+    )
     parser.add_argument("--out", type=Path, default=Path("results/fp16_tie_investigation"))
     args = parser.parse_args()
+
+    fp16_device = args.fp16_device or default_device()
+    # Same backend by default: a CPU fp32 control would confound precision with
+    # backend and make it impossible to say which one fixed the divergences.
+    fp32_device = args.fp32_device or fp16_device
 
     seed_everything(args.seed)
     prompts = json.loads(Path(f"data/prompts/eval_{args.domain}.json").read_text())[: args.n_prompts]
     spec = TreeSpec.chain(2)
 
-    print("=== fp16 (mps) ===", flush=True)
-    fp16 = run_pass("mps", "float16", args.heads, prompts, args.max_new_tokens, spec)
+    print(f"=== fp16 ({fp16_device}) ===", flush=True)
+    fp16 = run_pass(fp16_device, "float16", args.heads, prompts, args.max_new_tokens, spec)
     print(f"  divergent prompts: {fp16['n_divergent_prompts']}/{fp16['n_prompts']}")
     print(f"  exact-tie rate:    {fp16['exact_tie_rate']:.4%}")
 
-    print("=== fp32 (cpu) ===", flush=True)
-    fp32 = run_pass("cpu", "float32", args.heads, prompts, args.max_new_tokens, spec)
+    print(f"=== fp32 ({fp32_device}) ===", flush=True)
+    fp32 = run_pass(fp32_device, "float32", args.heads, prompts, args.max_new_tokens, spec)
     print(f"  divergent prompts: {fp32['n_divergent_prompts']}/{fp32['n_prompts']}")
     print(f"  exact-tie rate:    {fp32['exact_tie_rate']:.4%}")
 
@@ -146,6 +184,18 @@ def main() -> int:
         "env": capture_env().as_dict(),
         "domain": args.domain,
         "max_new_tokens": args.max_new_tokens,
+        "backend": {
+            "fp16_device": fp16_device,
+            "fp32_device": fp32_device,
+            "torch_version": torch.__version__,
+            "cuda_device_name": (
+                torch.cuda.get_device_name(0) if torch.cuda.is_available() else None
+            ),
+            "cuda_capability": (
+                ".".join(map(str, torch.cuda.get_device_capability(0)))
+                if torch.cuda.is_available() else None
+            ),
+        },
         "fp16": fp16,
         "fp32": fp32,
         "conclusion": {

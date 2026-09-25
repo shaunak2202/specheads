@@ -1,0 +1,47 @@
+# T4 / CUDA verification — NOT YET RUN
+
+This directory is empty on purpose. **Every measurement in this repository was
+taken on Apple MPS.** Nothing here has run on the Kaggle T4 the project targets.
+
+## Why this matters more than it sounds
+
+The repo's central correctness claim is that all 51 losslessness divergences are
+**fp16 argmax ties**, not a bug in the tree mask or cache pruning. The evidence
+(`results/fp16_tie_investigation/`) is strong — fp32 diverges on 0/8 prompts
+where fp16 diverges on 3/8, and 50 of 51 divergences sit within one fp16 ULP.
+
+But that evidence was gathered on one backend. fp16 *rounding* is fixed by
+IEEE-754 and is identical on any conforming hardware, so the **tie rate** should
+reproduce exactly on CUDA. What is *not* fixed is the reduction **order** inside
+a kernel, and that is precisely what decides which index `argmax` returns for an
+exact tie. So:
+
+- If CUDA shows the **same tie rate** but a **different set** of diverging
+  prompts, that confirms the diagnosis and is the expected outcome.
+- If CUDA shows **fp32 divergences**, the diagnosis is wrong and there is a real
+  bug that MPS happened to hide.
+- If CUDA shows a **different tie rate**, something deeper differs and it needs
+  investigating before any speedup number is trusted.
+
+The failure mode being guarded against is a **false pass**: green on MPS,
+divergent on Turing.
+
+## What to run
+
+`notebooks/kaggle/t4_losslessness_and_bench.py` holds the exact cells, in order.
+Notebook settings: **Accelerator = GPU T4 x2**, **Internet = On** (both need a
+phone-verified Kaggle account).
+
+The scripts are backend-agnostic and take `--device` / `--fp16-device` /
+`--fp32-device`. `investigate_fp16_ties.py` previously hardcoded `"mps"` and has
+been fixed; the fix was verified to reproduce the committed MPS numbers
+byte-for-byte on the original device pair, so the only variable when it runs on
+CUDA is the hardware.
+
+## Known gap
+
+`results/eagle_mixed/drafter.pt` is 197 MB and is not in git, so EAGLE
+throughput cannot be re-measured from a clean clone without re-training it or
+hosting the checkpoint elsewhere. The two Medusa head checkpoints (45 MB each)
+*are* committed, so the critical path — the fp16 tie investigation and Medusa
+throughput — works from a clean clone.

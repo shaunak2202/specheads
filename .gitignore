@@ -10,12 +10,33 @@ dist/
 
 # Data and run artifacts: manifests and metrics are committed, bulk tensors are not.
 data/**/*.pt
+# Exceptions: the two Medusa head checkpoints (45 MB each) are committed on
+# purpose. The fp16 tie investigation needs a *trained* drafter to reproduce, and
+# without these a clean clone on other hardware -- the T4 verification -- cannot
+# run at all. results/eagle_mixed/drafter.pt is 197 MB and stays out; re-measuring
+# EAGLE elsewhere means re-training it or hosting the checkpoint separately.
+!results/medusa_chat/heads.pt
+!results/medusa_mixed/heads.pt
 data/**/*.bin
 data/**/*.arrow
 data/cache/
 results/**/*.pt
+# Exceptions: the two Medusa head checkpoints (45 MB each) are committed on
+# purpose. The fp16 tie investigation needs a *trained* drafter to reproduce, and
+# without these a clean clone on other hardware -- the T4 verification -- cannot
+# run at all. results/eagle_mixed/drafter.pt is 197 MB and stays out; re-measuring
+# EAGLE elsewhere means re-training it or hosting the checkpoint separately.
+!results/medusa_chat/heads.pt
+!results/medusa_mixed/heads.pt
 wandb/
 *.ckpt
 # Distilled responses: regenerable from data/manifest.json + the seed, and large.
 data/distill/
 *.pt
+# Exceptions: the two Medusa head checkpoints (45 MB each) are committed on
+# purpose. The fp16 tie investigation needs a *trained* drafter to reproduce, and
+# without these a clean clone on other hardware -- the T4 verification -- cannot
+# run at all. results/eagle_mixed/drafter.pt is 197 MB and stays out; re-measuring
+# EAGLE elsewhere means re-training it or hosting the checkpoint separately.
+!results/medusa_chat/heads.pt
+!results/medusa_mixed/heads.pt

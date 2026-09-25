@@ -24,6 +24,14 @@ benchmarking are the point; large numbers are not.
 **Phases 0–6 run on Apple MPS (no CUDA device available). EAGLE trained but
 undertrained; Phase 7 write-up complete.**
 
+> ⚠️ **The T4/CUDA verification has not been run.** The losslessness diagnosis
+> below — that all 51 divergences are fp16 argmax ties rather than a decode bug —
+> is established on **one backend only**. fp16 rounding is fixed by IEEE-754 so
+> the tie *rate* should reproduce on CUDA, but which index `argmax` returns for an
+> exact tie depends on reduction order, which is a kernel detail. The risk is a
+> false pass. See [`results/t4/PENDING.md`](results/t4/PENDING.md) and
+> [`notebooks/kaggle/t4_losslessness_and_bench.py`](notebooks/kaggle/t4_losslessness_and_bench.py).
+
 The single most important caveat: **every wall-clock number here was measured on
 Apple MPS, not the Kaggle T4 the project targets.** Throughput and speedup do not
 transfer. Mean accepted length, per-head accuracy, tokens-per-forward and
